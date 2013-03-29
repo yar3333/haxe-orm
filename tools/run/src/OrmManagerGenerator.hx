@@ -43,21 +43,30 @@ class OrmManagerGenerator
 		var model:HaxeClass = new HaxeClass(autogenManagerClassName, baseClassName);
 		
 		model.addVar({ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null }, true);
+		model.addVar({ haxeName:"orm", haxeType:"models.server.Orm", haxeDefVal:null }, true);
 		
-		model.addMethod('new', [ { haxeName:"db", haxeType:"orm.Db", haxeDefVal:null } ], 'Void', 'this.db = db;');
+		model.addMethod(
+			  "new"
+			, [ 
+				  { haxeName:"db", haxeType:"orm.Db", haxeDefVal:null } 
+				, { haxeName:"orm", haxeType:"models.server.Orm", haxeDefVal:null } 
+			  ]
+			, "Void"
+			, "this.db = db;\nthis.orm = orm;"
+		);
         
         model.addMethod('newModelFromParams', vars, modelClassName,
-			 "var _obj = new " + modelClassName + "(db);\n"
-			+Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + ' = ' + v.haxeName + ';').join('\n') + "\n"
-			+"return _obj;",
+			  "var _obj = new " + modelClassName + "(db, orm);\n"
+			+ Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + ' = ' + v.haxeName + ';').join('\n') + "\n"
+			+ "return _obj;",
 			true
 		);
 		
 		model.addMethod('newModelFromRow', [ OrmTools.createVar('d', 'Dynamic') ], modelClassName,
-			 "var _obj = new " + modelClassName + "(db);\n"
-			 +Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + " = Reflect.field(d, '" + v.haxeName + "');").join('\n') + "\n"
-			+"return _obj;",
-			true
+			    "var _obj = new " + modelClassName + "(db, orm);\n"
+			  + Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + " = Reflect.field(d, '" + v.haxeName + "');").join('\n') + "\n"
+			  + "return _obj;"
+			, true
 		);
 		
 		var getVars = Lambda.filter(vars, function(v:OrmHaxeVar) return v.isKey);
@@ -83,9 +92,9 @@ class OrmManagerGenerator
                 : ""
             )
 			+"db.query('INSERT INTO `" + table + "`("
-				+Lambda.map(createVars, function(v) return "`" + v.name + "`").join(", ")
+				+ Lambda.map(createVars, function(v) return "`" + v.name + "`").join(", ")
 			+") VALUES (' + "
-				+Lambda.map(createVars, function(v) return "db.quote(" + v.haxeName + ")").join(" + ', ' + ")
+				+ Lambda.map(createVars, function(v) return "db.quote(" + v.haxeName + ")").join(" + ', ' + ")
 			+" + ')');\n"
 			+"return newModelFromParams(" + Lambda.map(vars, function(v) return v.isAutoInc ? 'db.lastInsertId()' : v.haxeName).join(", ") + ");"
 		);
@@ -135,7 +144,7 @@ class OrmManagerGenerator
 	
 	static function getCustomManager(table:String, vars:List<OrmHaxeVar>, modelClassName:String, fullClassName:String, baseClassName:String=null) : HaxeClass
 	{
-		var model:HaxeClass = new HaxeClass(fullClassName, baseClassName);
+		var model = new HaxeClass(fullClassName, baseClassName);
 		
 		model.addImport(modelClassName);
 		

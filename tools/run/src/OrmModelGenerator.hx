@@ -43,13 +43,22 @@ class OrmModelGenerator
 		var model = new HaxeClass(modelClassName, baseClassName);
 		
 		model.addVar({ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null }, true);
+		model.addVar({ haxeName:"orm", haxeType:"models.server.Orm", haxeDefVal:null }, true);
 		
 		for (v in vars)
 		{
 			model.addVar(v);
 		}
 		
-		model.addMethod("new", [ { haxeName:"db", haxeType:"orm.Db", haxeDefVal:null } ], "Void", "this.db = db;");
+		model.addMethod(
+			  "new"
+			, [
+				  { haxeName:"db", haxeType:"orm.Db", haxeDefVal:null }
+				, { haxeName:"orm", haxeType:"models.server.Orm", haxeDefVal:null } 
+			  ]
+			, "Void"
+			, "this.db = db;\nthis.orm = orm;"
+		);
         
         if (Lambda.exists(vars, function(v) return v.isKey) && Lambda.exists(vars, function(v) return !v.isKey))
 		{

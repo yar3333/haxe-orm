@@ -23,8 +23,6 @@ class Db
 	
 	public var profiler : Profiler = null;
 	
-	public var orm : models.server.Orm; 
-	
     public function new(connectionString:String, logLevel=0, ?profiler:Profiler) : Void
 	{
 		this.connectionString = connectionString;
@@ -40,8 +38,6 @@ class Db
 		
 		this.logLevel = logLevel;
 		this.profiler = profiler;
-		
-		this.orm = new models.server.Orm(this);
     }
 
 	public function query(sql:String, ?params:Dynamic) : ResultSet
