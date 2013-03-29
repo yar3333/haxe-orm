@@ -1,0 +1,8 @@
+<project name='orm' url='https://code.google.com/p/haxe-orm' license='LGPL'>
+    <user name='yar3333'/>
+    <tag v='database'/>
+    <tag v='models'/>
+    <description>Object-relational mapping library. Can generate classes from database tables. MySQL is only supported for now.</description>
+	<version name='1.0'>Init version.</version>
+	<depends name="stdlib" /> 
+</project>
