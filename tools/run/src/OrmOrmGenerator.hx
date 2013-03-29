@@ -36,8 +36,13 @@ class OrmOrmGenerator
 			clas.addVar( { haxeName:t.varName, haxeType:t.customManagerClassName, haxeDefVal:null }, false, false, true);
 		}
 		
-		clas.addMethod("new", [ { haxeName:"db", haxeType:"orm.Db", haxeDefVal:null } ], "Void", 
-			Lambda.map(tables, function(t) return "this." + t.varName + " = new " + t.customManagerClassName + "(db);").join("\n")
+		clas.addMethod(
+			  "new"
+			, [
+				{ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null } 
+			  ]
+			, "Void"
+			, Lambda.map(tables, function(t) return "this." + t.varName + " = new " + t.customManagerClassName + "(db, cast this);").join("\n")
 		);
         
 		return clas;
