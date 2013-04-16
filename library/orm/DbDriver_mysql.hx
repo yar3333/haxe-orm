@@ -20,13 +20,19 @@ class DbDriver_mysql implements DbDriver
 	
 	var lastAccessTime = 0.0;
 	
-	public function new(host:String, user:String, pass:String, database:String, port:Int=0) : Void
+	public function new(dbparams:String) : Void
     {
-		this.host = host;
-		this.user = user;
-		this.pass = pass;
-		this.database = database;
-		this.port = port;
+		var re = new EReg('^([_a-zA-Z0-9]+)\\:(.+?)@([-_.a-zA-Z0-9]+)(?:[:](\\d+))?/([-_a-zA-Z0-9]+)$', '');
+		if (!re.match(dbparams))
+		{
+			throw new Exception("Connection string invalid format.");
+		}
+		
+		this.host = re.matched(3);
+		this.user = re.matched(1);
+		this.pass = re.matched(2);
+		this.database = re.matched(5);
+		this.port = re.matched(4) != null && re.matched(4) != "" ? Std.parseInt(re.matched(4)) : 0;
 		
 		renew();
     }
@@ -104,9 +110,9 @@ class DbDriver_mysql implements DbDriver
     }
 
 	
-	public function getFields(table:String) : Array<HaqDbTableFieldData>
+	public function getFields(table:String) : Array<DbTableFieldData>
     {
-        var r = new Array<HaqDbTableFieldData>();
+        var r = new Array<DbTableFieldData>();
         var rows = query("SHOW COLUMNS FROM `" + table + "`");
         for (row in rows)
         {
@@ -161,14 +167,12 @@ class DbDriver_mysql implements DbDriver
 		return connection.lastInsertId();
     }
 	
-	public function getForeignKeys(table:String) : Array<HaqDbTableForeignKey>
+	public function getForeignKeys(table:String) : Array<DbTableForeignKey>
     {
         var sql = "
   SELECT
-   u.table_schema AS 'schema',
    u.table_name AS 'table',
    u.column_name AS 'key',
-   u.referenced_table_schema AS 'parentSchema',
    u.referenced_table_name AS 'parentTable',
    u.referenced_column_name AS 'parentKey'
   FROM information_schema.table_constraints AS c
@@ -176,19 +180,12 @@ class DbDriver_mysql implements DbDriver
   USING( constraint_schema, constraint_name )
   WHERE c.constraint_type = 'FOREIGN KEY'
     AND c.table_schema = '" + database + "'
-    AND u.table_name = '" + table + "'
-  ORDER BY u.table_schema, u.table_name, u.column_name;
+    AND u.table_name = '" + table + "';
 ";
-		var rows : ResultSet = query(sql);
-		var r = new Array<HaqDbTableForeignKey>();
-		for (row in rows)
-		{
-			r.push(row);
-		}
-		return r;
+		return Lambda.array(query(sql).results());
     }
 	
-	public function getUniques(table:String) : Hash<Array<String>>
+	public function getUniques(table:String) : Array<Array<String>>
 	{
 		var rows : ResultSet = query("SHOW INDEX FROM `" + table + "` WHERE Non_unique=0 AND Key_name<>'PRIMARY'");
 		var r = new Hash<Array<String>>();
@@ -197,10 +194,10 @@ class DbDriver_mysql implements DbDriver
 			var key = row.Key_name;
             if (!r.exists(key))
             {
-                r.set(key, new Array<String>());
+                r.set(key, []);
             }
             r.get(key).push(row.Column_name);
 		}
-		return r;
+		return Lambda.array(r);
 	}
 }

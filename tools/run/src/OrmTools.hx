@@ -30,12 +30,14 @@ class OrmTools
 		if (sqlTypeCheck(sqlType, "SHORT"))    return "Int";
 		if (sqlTypeCheck(sqlType, "LONG"))     return "Int";
 		if (sqlTypeCheck(sqlType, "INT"))      return "Int";
+		if (sqlTypeCheck(sqlType, "INTEGER"))  return "Int";
 		if (sqlTypeCheck(sqlType, "INT24"))    return "Int";
 		if (sqlTypeCheck(sqlType, "BIGINT"))   return "Float";
 		if (sqlTypeCheck(sqlType, "LONGLONG")) return "Float";
 		if (sqlTypeCheck(sqlType, "DECIMAL"))  return "Float";
 		if (sqlTypeCheck(sqlType, "FLOAT"))    return "Float";
 		if (sqlTypeCheck(sqlType, "DOUBLE"))   return "Float";
+		if (sqlTypeCheck(sqlType, "REAL"))     return "Float";
 		if (sqlTypeCheck(sqlType, "DATE"))     return "Date";
 		if (sqlTypeCheck(sqlType, "DATETIME")) return "Date";
 		return "String";
@@ -55,7 +57,7 @@ class OrmTools
 		};
 	}
 	
-	static function field2var(f:HaqDbTableFieldData) : OrmHaxeVar
+	static function field2var(f:DbTableFieldData) : OrmHaxeVar
 	{ 
 		return {
 			 haxeName : f.name
@@ -70,7 +72,7 @@ class OrmTools
 		};
 	}
 	
-	public static function fields2vars(fields:Iterable<HaqDbTableFieldData>) : List<OrmHaxeVar>
+	public static function fields2vars(fields:Iterable<DbTableFieldData>) : List<OrmHaxeVar>
 	{
 		return Lambda.map(fields, OrmTools.field2var);
 	}

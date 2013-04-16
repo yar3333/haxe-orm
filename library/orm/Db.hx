@@ -4,6 +4,7 @@ import stdlib.Exception;
 import stdlib.Profiler;
 import sys.db.ResultSet;
 import orm.DbDriver_mysql;
+import orm.DbDriver_sqlite;
 
 class Db
 {
@@ -27,13 +28,16 @@ class Db
 		this.logLevel = logLevel != null ? logLevel : 0;
 		this.profiler = profiler != null ? profiler : new Profiler(false);
 		
-		var params = new DbConectionString(connectionString);
+		var n = connectionString.indexOf("://");
+		if (n < 0) throw new Exception("Connection string format must be 'dbtype://params'.");
+		var dbtype = connectionString.substr(0, n);
+		var dbparams = connectionString.substr(n + "://".length);
 		
 		this.profiler.begin("Db.open");
-		var klassName = "orm.DbDriver_" + params.type;
+		var klassName = "orm.DbDriver_" + dbtype;
 		var klass = Type.resolveClass(klassName);
 		if (klass == null) throw new Exception("Class " + klassName + " is not found.");
-		connection = Type.createInstance(klass, [ params.host, params.user, params.password, params.dbname, params.port ]);
+		connection = Type.createInstance(klass, [ dbparams ]);
 		this.profiler.end();
 		
     }
