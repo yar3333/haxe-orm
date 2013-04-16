@@ -134,12 +134,9 @@ class OrmManagerGenerator
 			+"return list;"
 		);
 		
-		var uniques = db.connection.getUniques(table);
-        for (uniqueName in uniques.keys())
+        for (fields in db.connection.getUniques(table))
 		{
-			var uniqueFields = uniques.get(uniqueName);
-            
-            var vs = Lambda.filter(vars, function(v) return Lambda.has(uniqueFields, v.name));
+            var vs = Lambda.filter(vars, function(v) return Lambda.has(fields, v.name));
 			createGetByMethodOne(table, vars, modelClassName, vs, model);
 		}
 		
