@@ -58,7 +58,7 @@ class Db
 		catch (e:DbException)
 		{
             profiler.end();
-			throw new Exception("DATABASE\n\tSQL QUERY: " + sql + "\n\tSQL RESULT: error code = " + e.code + ".", e);
+			throw new Exception("DATABASE\n\tSQL QUERY: " + sql + "\n\tSQL RESULT: error code = " + e.code + ", message: " + e.message);
 		}
 		catch (e:Dynamic)
 		{
