@@ -3,6 +3,6 @@
     <tag v='database'/>
     <tag v='models'/>
     <description>Object-relational mapping library. Can generate classes from database tables. MySQL and SqlLite are supported for now.</description>
-	<version name='1.0'>Init version.</version>
+	<version name='1.1'>Command-line options changed.</version>
 	<depends name="stdlib" /> 
 </project>
