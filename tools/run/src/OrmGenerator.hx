@@ -14,11 +14,13 @@ class OrmGenerator
 {
 	var log : Log;
 	var project : FlashDevelopProject;
+	var srcPath : String;
 	
-	public function new(log:Log, project:FlashDevelopProject)
+	public function new(log:Log, project:FlashDevelopProject, srcPath:String)
     {
 		this.log = log;
 		this.project = project;
+		this.srcPath = PathTools.path2normal(srcPath != "" ? srcPath : project.srcPath) + "/";
 	}
 	
 	public function generate(db:Db, autogenPackage:String, customPackage:String)
@@ -31,8 +33,8 @@ class OrmGenerator
 		for (tableName in db.connection.getTables())
         {
 			var table = new OrmTable(tableName, autogenPackage, customPackage);
-			new OrmModelGenerator(log, project).make(db, table, customOrmClassName);
-			new OrmManagerGenerator(log, project).make(db, table, customOrmClassName);
+			new OrmModelGenerator(log, project).make(db, table, customOrmClassName, srcPath);
+			new OrmManagerGenerator(log, project).make(db, table, customOrmClassName, srcPath);
 			tables.push(table);
         }
 		
@@ -44,10 +46,8 @@ class OrmGenerator
 	{
 		log.start("MANAGERS => " + customOrmClassName);
 		
-		var basePath = PathTools.path2normal(project.srcPath) + "/";
-		
 		var autogenOrm = getAutogenOrm(tables, autogenOrmClassName);
-		var destFileName = basePath + autogenOrmClassName.replace(".", "/") + ".hx";
+		var destFileName = srcPath + autogenOrmClassName.replace(".", "/") + ".hx";
 		FileSystem.createDirectory(Path.directory(destFileName));
 		File.saveContent(
 			 destFileName

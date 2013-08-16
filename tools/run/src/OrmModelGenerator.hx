@@ -20,16 +20,14 @@ class OrmModelGenerator
 		this.project = project;
 	}
 	
-	public function make(db:Db, table:OrmTable, customOrmClassName:String) : Void
+	public function make(db:Db, table:OrmTable, customOrmClassName:String, srcPath:String) : Void
 	{
 		log.start(table.tableName + " => " + table.customModelClassName);
-		
-		var basePath = PathTools.path2normal(project.srcPath) + "/";
 		
 		var vars = OrmTools.fields2vars(db.connection.getFields(table.tableName));
 		
 		var autogenModel = getAutogenModel(table.tableName, vars, table.autogenModelClassName, customOrmClassName);
-		var destFileName = basePath + table.autogenModelClassName.replace(".", "/") + ".hx";
+		var destFileName = srcPath + table.autogenModelClassName.replace(".", "/") + ".hx";
 		FileSystem.createDirectory(Path.directory(destFileName));
 		File.saveContent(
 			  destFileName
@@ -39,7 +37,7 @@ class OrmModelGenerator
 		if (project.findFile(table.customModelClassName.replace(".", "/") + ".hx") == null) 
 		{
 			var customModel = getCustomModel(table.tableName, vars, table.customModelClassName, table.autogenModelClassName, table.customManagerClassName);
-			var destFileName = basePath + table.customModelClassName.replace(".", "/") + ".hx";
+			var destFileName = srcPath + table.customModelClassName.replace(".", "/") + ".hx";
 			FileSystem.createDirectory(Path.directory(destFileName));
 			File.saveContent(destFileName, customModel.toString());
 		}
