@@ -1,5 +1,6 @@
 package orm;
 
+import Type;
 import sys.db.Connection;
 import sys.db.Sqlite;
 import sys.db.ResultSet;
