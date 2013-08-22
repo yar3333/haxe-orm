@@ -86,7 +86,7 @@ class Db
 	
 	public function bind(sql:String, params:Dynamic) : String
 	{
-		return new EReg("[{]([_a-zA-Z][_a-zA-Z0-9]*)[}]", "").customReplace(sql, function(re) 
+		return new EReg("[{]([_a-zA-Z][_a-zA-Z0-9]*)[}]", "").map(sql, function(re) 
 		{
 			var name = re.matched(1);
 			if (Reflect.hasField(params, name))
