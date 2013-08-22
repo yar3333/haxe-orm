@@ -1,0 +1,13 @@
+{
+  "name": "orm",
+  "license": "LGPL",
+  "tags": ["database","models"],
+  "description": "Object-relational mapping library. Can generate classes from database tables. MySQL and SqlLite are supported for now.",
+  "contributors": ["yar3333"],
+  "releasenote": "haxe 3 support.",
+  "version": "1.1.1",
+  "url": "https://code.google.com/p/haxe-orm",
+  "dependencies": {
+    "stdlib": ""
+  }
+}

@@ -1,8 +1,0 @@
-<project name='orm' url='https://code.google.com/p/haxe-orm' license='LGPL'>
-    <user name='yar3333'/>
-    <tag v='database'/>
-    <tag v='models'/>
-    <description>Object-relational mapping library. Can generate classes from database tables. MySQL and SqlLite are supported for now.</description>
-	<version name='1.1'>Command-line options changed.</version>
-	<depends name="stdlib" /> 
-</project>
