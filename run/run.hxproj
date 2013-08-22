@@ -4,7 +4,7 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="..\..\library\run.n" />
+    <movie path="..\library\run.n" />
     <movie fps="0" />
     <movie width="0" />
     <movie height="0" />
@@ -15,7 +15,7 @@
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
-    <class path="..\..\library" />
+    <class path="..\library" />
     <class path="src" />
   </classpaths>
   <!-- Build options -->
