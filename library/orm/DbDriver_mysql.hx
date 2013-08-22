@@ -188,7 +188,7 @@ class DbDriver_mysql implements DbDriver
 	public function getUniques(table:String) : Array<Array<String>>
 	{
 		var rows : ResultSet = query("SHOW INDEX FROM `" + table + "` WHERE Non_unique=0 AND Key_name<>'PRIMARY'");
-		var r = new Hash<Array<String>>();
+		var r = new Map<String,Array<String>>();
 		for (row in rows)
 		{
 			var key = row.Key_name;
