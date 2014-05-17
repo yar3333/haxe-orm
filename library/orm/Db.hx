@@ -26,7 +26,7 @@ class Db
 	{
 		this.connectionString = connectionString;
 		this.logLevel = logLevel != null ? logLevel : 0;
-		this.profiler = profiler != null ? profiler : new Profiler(false);
+		this.profiler = profiler != null ? profiler : new Profiler(0);
 		
 		var n = connectionString.indexOf("://");
 		if (n < 0) throw new Exception("Connection string format must be 'dbtype://params'.");
