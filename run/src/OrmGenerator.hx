@@ -20,7 +20,7 @@ class OrmGenerator
     {
 		this.log = log;
 		this.project = project;
-		this.srcPath = PathTools.path2normal(srcPath != "" ? srcPath : project.srcPath) + "/";
+		this.srcPath = PathTools.normalize(srcPath != "" ? srcPath : project.srcPath) + "/";
 	}
 	
 	public function generate(db:Db, autogenPackage:String, customPackage:String)
