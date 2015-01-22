@@ -4,8 +4,8 @@
   "tags": ["database","models"],
   "description": "Object-relational mapping library. Can generate classes from database tables. MySQL and SqlLite are supported for now.",
   "contributors": ["yar3333"],
-  "releasenote": "Minor.",
-  "version": "1.2.1",
+  "releasenote": "Minors.",
+  "version": "1.2.2",
   "url": "https://bitbucket.org/yar3333/haxe-orm",
   "dependencies": {"stdlib":""}
 }
