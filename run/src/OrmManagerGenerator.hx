@@ -1,5 +1,3 @@
-package ;
-
 import hant.PathTools;
 import stdlib.FileSystem;
 import orm.Db;
@@ -11,18 +9,16 @@ using stdlib.StringTools;
 
 class OrmManagerGenerator 
 {
-	var log : Log;
 	var project : FlashDevelopProject;
 	
-	public function new(log:Log, project:FlashDevelopProject)
+	public function new(project:FlashDevelopProject)
     {
-		this.log = log;
 		this.project = project;
 	}
 	
 	public function make(db:Db, table:OrmTable, customOrmClassName:String, srcPath:String) : Void
 	{
-		log.start(table.tableName + " => " + table.customManagerClassName);
+		Log.start(table.tableName + " => " + table.customManagerClassName);
 		
 		var vars = OrmTools.fields2vars(db.connection.getFields(table.tableName));
 		
@@ -42,7 +38,7 @@ class OrmManagerGenerator
 			File.saveContent(destFileName, customManager.toString());
 		}
 		
-		log.finishOk();
+		Log.finishSuccess();
 	}
 	
 	function getAutogenManager(db:Db, table:String, vars:List<OrmHaxeVar>, modelClassName:String, autogenManagerClassName:String, customOrmClassName:String) : HaxeClass
