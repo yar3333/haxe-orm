@@ -1,5 +1,3 @@
-package ;
-
 class OrmTable
 {
 	public var tableName(default, null) : String;

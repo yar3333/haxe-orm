@@ -1,5 +1,3 @@
-package ;
-
 import orm.DbDriver;
 using stdlib.StringTools;
 

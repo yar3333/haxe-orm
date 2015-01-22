@@ -1,5 +1,3 @@
-package ;
-
 using stdlib.StringTools;
 
 typedef HaxeVar = {
