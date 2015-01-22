@@ -1,5 +1,3 @@
-package ;
-
 import hant.FlashDevelopProject;
 import hant.PathTools;
 import stdlib.Exception;
@@ -39,13 +37,13 @@ class Main
 		{
 			try
 			{
-				var project = new FlashDevelopProject(options.get("hxproj"));
+				var project = FlashDevelopProject.load(options.get("hxproj"));
 				var databaseConnectionString = options.get("databaseConnectionString");
 				if (databaseConnectionString != "")
 				{
-					log.start("Generate object related mapping classes");
-					new OrmGenerator(log, project, options.get("srcPath")).generate(new Db(databaseConnectionString), options.get("autogenPackage"), options.get("customPackage"));
-					log.finishOk();
+					Log.start("Generate object related mapping classes");
+					new OrmGenerator(project, options.get("srcPath")).generate(new Db(databaseConnectionString), options.get("autogenPackage"), options.get("customPackage"));
+					Log.finishSuccess();
 				}
 				else
 				{
@@ -55,7 +53,7 @@ class Main
 			}
 			catch (e:Exception)
 			{
-				log.trace(e.message);
+				Log.echo(e.message);
 				fail();
 			}
         }

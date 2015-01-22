@@ -1,5 +1,3 @@
-package ;
-
 typedef OrmHaxeVar = {>HaxeClass.HaxeVar,
 	var name : String;
 	var type : String;
