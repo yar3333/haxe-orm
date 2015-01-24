@@ -1,9 +1,8 @@
 import hant.Log;
 import hant.FlashDevelopProject;
 import orm.Db;
-import hant.PathTools;
+import hant.Path;
 import stdlib.FileSystem;
-import haxe.io.Path;
 import sys.io.File;
 using stdlib.StringTools;
 
@@ -16,7 +15,7 @@ class OrmGenerator
 	public function new(project:FlashDevelopProject, srcPath:String)
     {
 		this.project = project;
-		this.srcPath = PathTools.normalize(srcPath != "" ? srcPath : project.classPaths[project.classPaths.length - 1]) + "/";
+		this.srcPath = Path.normalize(srcPath != "" ? srcPath : project.classPaths[project.classPaths.length - 1]) + "/";
 	}
 	
 	public function generate(db:Db, autogenPackage:String, customPackage:String)

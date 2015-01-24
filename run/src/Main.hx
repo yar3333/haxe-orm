@@ -1,5 +1,5 @@
 import hant.FlashDevelopProject;
-import hant.PathTools;
+import hant.Path;
 import stdlib.Exception;
 import neko.Lib;
 import hant.Log;
@@ -11,7 +11,7 @@ class Main
 {
 	static function main()
 	{
-		var exeDir = PathTools.normalize(Sys.getCwd());
+		var exeDir = Path.normalize(Sys.getCwd());
         
 		var args = Sys.args();
 		if (args.length > 0)
