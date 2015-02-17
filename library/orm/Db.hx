@@ -1,7 +1,6 @@
 package orm;
 
 import stdlib.Exception;
-import stdlib.Profiler;
 import sys.db.ResultSet;
 import orm.DbDriver_mysql;
 import orm.DbDriver_sqlite;
@@ -18,27 +17,24 @@ class Db
      */
 	public var logLevel : Int;
 	
-	public var profiler : Profiler;
-	
 	public var connection(default , null) : DbDriver;
 	
-    public function new(connectionString:String, ?logLevel:Int, ?profiler:Profiler) : Void
+    public function new(connectionString:String, ?logLevel:Int) : Void
 	{
 		this.connectionString = connectionString;
 		this.logLevel = logLevel != null ? logLevel : 0;
-		this.profiler = profiler != null ? profiler : new Profiler(0);
 		
 		var n = connectionString.indexOf("://");
 		if (n < 0) throw new Exception("Connection string format must be 'dbtype://params'.");
 		var dbtype = connectionString.substr(0, n);
 		var dbparams = connectionString.substr(n + "://".length);
 		
-		this.profiler.begin("Db.open");
+		#if profiler Profiler.begin("Db.open"); #end
 		var klassName = "orm.DbDriver_" + dbtype;
 		var klass = Type.resolveClass(klassName);
 		if (klass == null) throw new Exception("Class " + klassName + " is not found.");
 		connection = Type.createInstance(klass, [ dbparams ]);
-		this.profiler.end();
+		#if profiler Profiler.end(); #end
 		
     }
 
@@ -46,23 +42,23 @@ class Db
     {
 		try
 		{
-			profiler.begin('Db.query');
+			#if profiler Profiler.begin('Db.query'); #end
 			if (params != null) sql = bind(sql, params);
 			if (logLevel >= 1) trace("SQL QUERY: " + sql);
 			var startTime = logLevel >= 2 ? Sys.time() : 0;
 			var r = connection.query(sql);
 			if (logLevel >= 2) trace("SQL QUERY FINISH " + Math.round((Sys.time() - startTime) * 1000) + " ms");
-			profiler.end();
+			#if profiler Profiler.end(); #end
 			return r;
 		}
 		catch (e:DbException)
 		{
-            profiler.end();
+            #if profiler Profiler.end(); #end
 			throw new Exception("DATABASE\n\tSQL QUERY: " + sql + "\n\tSQL RESULT: error code = " + e.code + ", message: " + e.message);
 		}
 		catch (e:Dynamic)
 		{
-			profiler.end();
+			#if profiler Profiler.end(); #end
 			Exception.rethrow(e);
 			return null;
 		}
