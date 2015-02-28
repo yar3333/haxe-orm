@@ -15,7 +15,7 @@ class OrmGenerator
 	public function new(project:FlashDevelopProject, srcPath:String)
     {
 		this.project = project;
-		this.srcPath = Path.normalize(srcPath != "" ? srcPath : project.classPaths[project.classPaths.length - 1]) + "/";
+		this.srcPath = Path.normalize(srcPath) + "/";
 	}
 	
 	public function generate(db:Db, autogenPackage:String, customPackage:String)

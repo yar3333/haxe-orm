@@ -37,12 +37,28 @@ class Main
 		{
 			try
 			{
+				var srcPath = options.get("srcPath");
+				
 				var project = FlashDevelopProject.load(options.get("hxproj"));
+				if (project == null) project = new FlashDevelopProject();
+				
+				if (srcPath != "")
+				{
+					if (project.classPaths.indexOf(srcPath) < 0)
+					{
+						project.classPaths.push(srcPath);
+					}
+				}
+				else
+				{
+					srcPath = project.classPaths.length > 0 ? project.classPaths[project.classPaths.length - 1] : "src";
+				}
+				
 				var databaseConnectionString = options.get("databaseConnectionString");
 				if (databaseConnectionString != "")
 				{
 					Log.start("Generate object related mapping classes");
-					new OrmGenerator(project, options.get("srcPath")).generate(new Db(databaseConnectionString), options.get("autogenPackage"), options.get("customPackage"));
+					new OrmGenerator(project, srcPath).generate(new Db(databaseConnectionString), options.get("autogenPackage"), options.get("customPackage"));
 					Log.finishSuccess();
 				}
 				else
