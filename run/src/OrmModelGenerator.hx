@@ -31,7 +31,7 @@ class OrmModelGenerator
 		
 		if (project.findFile(table.customModelClassName.replace(".", "/") + ".hx") == null) 
 		{
-			var customModel = getCustomModel(table.tableName, vars, table.customModelClassName, table.autogenModelClassName, table.customManagerClassName);
+			var customModel = getCustomModel(table.customModelClassName, table.autogenModelClassName);
 			var destFileName = srcPath + table.customModelClassName.replace(".", "/") + ".hx";
 			FileSystem.createDirectory(Path.directory(destFileName));
 			File.saveContent(destFileName, customModel.toString());
@@ -88,7 +88,7 @@ class OrmModelGenerator
 		return model;
 	}
 
-	function getCustomModel(table:String, vars:List<OrmHaxeVar>, customModelClassName:String, autogenModelClassName:String, customManagerClassName:String) : HaxeClass
+	function getCustomModel(customModelClassName:String, autogenModelClassName:String) : HaxeClass
 	{
 		return new HaxeClass(customModelClassName, autogenModelClassName);
 	}
