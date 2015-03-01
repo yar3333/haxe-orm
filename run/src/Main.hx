@@ -11,6 +11,8 @@ class Main
 {
 	static function main()
 	{
+		Log.instance.depthLimit = 2;
+		
 		var exeDir = Path.normalize(Sys.getCwd());
         
 		var args = Sys.args();
@@ -22,8 +24,6 @@ class Main
 		{
 			fail("run this program via haxelib utility.");
 		}
-		
-		var log = new Log(2);
 		
 		var options = new CmdOptions();
 		options.add("databaseConnectionString", "", null, "Database connecting string like 'mysql://user:pass@localhost/mydb'.");
@@ -42,16 +42,16 @@ class Main
 				var project = FlashDevelopProject.load(options.get("hxproj"));
 				if (project == null) project = new FlashDevelopProject();
 				
-				if (srcPath != "")
+				if (srcPath == "")
 				{
-					if (project.classPaths.indexOf(srcPath) < 0)
-					{
-						project.classPaths.push(srcPath);
-					}
+					srcPath = project.classPaths.length > 0
+						? project.classPaths[project.classPaths.length - 1]
+						: "src";
 				}
-				else
+				
+				if (project.classPaths.indexOf(srcPath) < 0)
 				{
-					srcPath = project.classPaths.length > 0 ? project.classPaths[project.classPaths.length - 1] : "src";
+					project.classPaths.push(srcPath);
 				}
 				
 				var databaseConnectionString = options.get("databaseConnectionString");
