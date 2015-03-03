@@ -73,8 +73,8 @@ class DbDriver_mysql implements DbDriver
 		
 		#if php
 		var r = connection.request(sql);
-		var errno = untyped __call__("mysql_errno");
-		if (errno != 0)
+		var errno : Dynamic = untyped __call__("mysql_errno");
+		if (errno != 0 && errno != false)
 		{
 			throw new DbException(errno, untyped __call__("mysql_error"));
 		}
