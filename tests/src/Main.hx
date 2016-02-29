@@ -1,5 +1,5 @@
 import orm.Db;
-import orm.SqlSelectQuery;
+import orm.SqlQuery;
 
 class Main
 {
