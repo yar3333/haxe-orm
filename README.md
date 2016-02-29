@@ -1,6 +1,7 @@
 # orm #
 
-**orm** is a object-relational mapping library written on pure haxe with MySQL backend. You can generate classes by existing database and use them in your application.
+**orm** is a object-relational mapping library written on pure haxe with MySQL/SqlLite backends.
+You can generate classes by existing database and use them in your application.
 
 ## Installation ##
 
@@ -29,7 +30,7 @@ db.query("DELETE FROM users WHERE id = " + db.quote(id));
 
 To generate database table-related classes you need:
 ```bash
-haxelib run orm mysql://user:pass@host/dbname
+haxelib run orm mysql://user:password@host/dbname
 ```
 
 After generating you can get models and managers classes. For example, if your database has table "users" then ORM generator create next files:
@@ -133,3 +134,8 @@ orm.users
    .where("status", "=", "toRemove")
    .delete();
 ```
+
+## Tips ##
+
+* `TinyInt(1)` type in your MySQL database treated as `Bool` in code.
+* Run `haxelib run orm` to get help about command-line switches.
