@@ -119,7 +119,17 @@ var activeGoogleUser = orm.users
                           .findOne();
 
 // to get only specified fields of the record:
-var googleUserID /* : { id:Int } */ = orm.users
+var googleUserFields = orm.users
                           .where("email", "=", "support@google.com")
-                          .findOneFields({ id:0 }); // field name and literal type used, not value
+                          .findOneFields({ id:0, name:"" }); // field name and value type are used, not value itself
+trace(googleUserFields.id + " / " + googleUserFields.name);
+
+// import orm.SqlValues;
+orm.users
+   .where("status", "=", "winner")
+   .update({ status:"done", score:SqlExpression("score + 1") });
+   
+orm.users
+   .where("status", "=", "toRemove")
+   .delete();
 ```
