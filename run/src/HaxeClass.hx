@@ -37,14 +37,22 @@ class HaxeClass
 		imports.push("import " + packageName + ";");
 	}
 	
-	public function addVar(v:HaxeVar, isPrivate=false, isStatic=false, isReadOnlyProperty=false) : Void
+	public function addVar(v:HaxeVar, isPrivate=false, isStatic=false, isReadOnlyProperty=false, ?allows:Array<String>) : Void
 	{
-		var s = (isPrivate ? "" : "public ")
-			  + (isStatic ? "static " : "")
-			  + "var " + v.haxeName + (isReadOnlyProperty ? "(default, null)" : "") + " : " + v.haxeType
-			  + (isStatic && v.haxeDefVal != null ? " = " + v.haxeDefVal : "")
-			  + ";";
-		vars.push(s);
+		if (v != null)
+		{
+			var s = (allows != null && allows.length > 0 ? allows.map(function(s) return "@:allow(" + s + ")\n").join("") : "")
+				  + (isPrivate ? "" : "public ")
+				  + (isStatic ? "static " : "")
+				  + "var " + v.haxeName + (isReadOnlyProperty ? "(default, null)" : "") + " : " + v.haxeType
+				  + (v.haxeDefVal != null ? " = " + v.haxeDefVal : "")
+				  + ";";
+			vars.push(s);
+		}
+		else
+		{
+			vars.push("");
+		}
  	}
 	
 	public function addVarGetter(v:HaxeVarGetter, isPrivate = false, isStatic = false, isInline = false) : Void
@@ -93,7 +101,7 @@ class HaxeClass
 			  + imports.join('\n') + (imports.length > 0 ? '\n\n' : '')
 			  + 'class ' + clas.className + (baseFullClassName != null ? ' extends ' + baseFullClassName : '') + '\n'
 			  + '{\n'
-			  + (vars.length > 0 ? '\t' + vars.join('\n\t') + '\n\n' : '')
+			  + (vars.length > 0 ? '\t' + vars.map(function(s) return s.replace("\n", "\n\t")).join('\n\t') + '\n\n' : '')
 			  + (methods.length > 0 ? '\t' + methods.join('\n\n\t') + '\n' : '')
 			  + (customs.length > 0 ? '\t' + customs.join('\n\n\t') + '\n' : '')
 			  + '}';
