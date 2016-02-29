@@ -44,10 +44,13 @@ class OrmManagerGenerator
 	{
 		var model:HaxeClass = new HaxeClass(autogenManagerClassName);
 		
-		model.addVar({ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null }, true);
+		model.addVar({ haxeName:"table", haxeType:"String", haxeDefVal:table }, false, false, true);
+		model.addVar(null);
+		model.addVar({ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null }, true, ["orm.SqlSelectQuery"]);
 		model.addVar({ haxeName:"orm", haxeType:customOrmClassName, haxeDefVal:null }, true);
 		
-		model.addMethod(
+		model.addMethod
+		(
 			  "new"
 			, [ 
 				  { haxeName:"db", haxeType:"orm.Db", haxeDefVal:null } 
@@ -57,24 +60,44 @@ class OrmManagerGenerator
 			, "this.db = db;\nthis.orm = orm;"
 		);
         
-        model.addMethod('newModelFromParams', vars, modelClassName,
+        model.addMethod
+		(
+			'newModelFromParams',
+			vars,
+			modelClassName,
 			  "var _obj = new " + modelClassName + "(db, orm);\n"
 			+ Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + ' = ' + v.haxeName + ';').join('\n') + "\n"
 			+ "return _obj;",
 			true
 		);
 		
-		model.addMethod('newModelFromRow', [ OrmTools.createVar('d', 'Dynamic') ], modelClassName,
-			    "var _obj = new " + modelClassName + "(db, orm);\n"
-			  + Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + " = Reflect.field(d, '" + v.haxeName + "');").join('\n') + "\n"
-			  + "return _obj;"
+		model.addMethod
+		(
+			'newModelFromRow',
+			[ OrmTools.createVar('d', 'Dynamic') ],
+			modelClassName,
+			  "var _obj = new " + modelClassName + "(db, orm);\n"
+			+ Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + " = Reflect.field(d, '" + v.haxeName + "');").join('\n') + "\n"
+			+ "return _obj;"
 			, true
+		);
+		
+		model.addMethod
+		(
+			'where',
+			[ OrmTools.createVar('field', 'String'), OrmTools.createVar('op', 'String'), OrmTools.createVar('value', 'Dynamic') ],
+			'orm.SqlSelectQuery',
+			"return new orm.SqlSelectQuery<" + modelClassName + ">(this).where(field, op, value);"
 		);
 		
 		var getVars = Lambda.filter(vars, function(v:OrmHaxeVar) return v.isKey);
 		if (getVars.length > 0)
 		{
-			model.addMethod('get', getVars, modelClassName,
+			model.addMethod
+			(
+				'get',
+				getVars,
+				modelClassName,
 				"return getBySqlOne('SELECT * FROM `" + table + "`" + getWhereSql(getVars) + ");"
 			);
 		}
@@ -82,7 +105,11 @@ class OrmManagerGenerator
 		var createVars = Lambda.filter(vars, function(v:OrmHaxeVar) return !v.isAutoInc);
         var foreignKeys = db.connection.getForeignKeys(table);
         var foreignKeyVars = Lambda.filter(vars, function(v:OrmHaxeVar) return !v.isAutoInc);
-		model.addMethod('create', createVars, modelClassName,
+		model.addMethod
+		(
+			'create',
+			createVars,
+			modelClassName,
             (
                 Lambda.exists(createVars, function(v:OrmHaxeVar) return v.name == 'position')
                 ? "if (position == null)\n"
@@ -103,21 +130,36 @@ class OrmManagerGenerator
 		
 		var deleteVars = Lambda.filter(vars, function(v:OrmHaxeVar) return v.isKey);
 		if (deleteVars.length == 0) deleteVars = vars;
-		model.addMethod('delete', deleteVars, 'Void',
+		model.addMethod
+		(
+			'delete',
+			deleteVars,
+			'Void',
 			"db.query('DELETE FROM `" + table + "`" + getWhereSql(deleteVars) + " + ' LIMIT 1');"
 		);
 		
-		model.addMethod('getAll', [ OrmTools.createVar('_order', 'String', getOrderDefVal(vars)) ], 'Array<' + modelClassName + '>',
-			 "return getBySqlMany('SELECT * FROM `" + table + "`' + (_order != null ? ' ORDER BY ' + _order : ''));"
+		model.addMethod
+		(
+			'getAll',
+			[ OrmTools.createVar('_order', 'String', getOrderDefVal(vars)) ],
+			'Array<' + modelClassName + '>',
+			"return getBySqlMany('SELECT * FROM `" + table + "`' + (_order != null ? ' ORDER BY ' + _order : ''));"
 		);
 		
-		model.addMethod('getBySqlOne', [ OrmTools.createVar('sql', 'String') ], modelClassName,
+		model.addMethod
+		(
+			'getBySqlOne',
+			[ OrmTools.createVar('sql', 'String') ],
+			modelClassName,
 			 "var rows = db.query(sql + ' LIMIT 1');\n"
 			+"if (rows.length == 0) return null;\n"
 			+"return newModelFromRow(rows.next());"
 		);
 		
-		model.addMethod('getBySqlMany', [ OrmTools.createVar('sql', 'String') ], 'Array<' + modelClassName + '>',
+		model.addMethod
+		(
+			'getBySqlMany',
+			[ OrmTools.createVar('sql', 'String') ], 'Array<' + modelClassName + '>',
 			 "var rows = db.query(sql);\n"
 			+"var list : Array<" + modelClassName + "> = [];\n"
 			+"for (row in rows)\n"
@@ -154,11 +196,11 @@ class OrmManagerGenerator
 	{
 		if (whereVars == null || whereVars.length == 0) return;
         
-        model.addMethod(
+        model.addMethod
+		(
 			'getBy' + Lambda.map(whereVars, function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
 			whereVars, 
 			modelClassName,
-			
 			"return getBySqlOne('SELECT * FROM `" + table + "`" + getWhereSql(whereVars) + ");"
 		);
 	}
@@ -167,11 +209,11 @@ class OrmManagerGenerator
 	{
 		if (whereVars == null || !whereVars.iterator().hasNext()) return;
 
-		model.addMethod(
+		model.addMethod
+		(
 			'getBy' + Lambda.map(whereVars, function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
 			Lambda.concat(whereVars, [ OrmTools.createVar('_order', 'String', getOrderDefVal(vars)) ]), 
 			'Array<' + modelClassName + '>',
-			
 			"return getBySqlMany('SELECT * FROM `" + table + "`" + getWhereSql(whereVars) + " + (_order != null ? ' ORDER BY ' + _order : ''));"
 		);
 	}

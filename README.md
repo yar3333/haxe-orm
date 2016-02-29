@@ -108,4 +108,18 @@ for (user in users)
 var user = orm.users.getBySqlOne("SELECT * FROM users WHERE login = " + db.quote("admin"));
 user.password = "newpass";
 user.save(); // update database
+
+var activeUsers = orm.users
+                     .where("status", "=", "active")
+                     .findOne();
+
+var activeGoogleUser = orm.users
+                          .where("email", "=", "support@google.com")
+                          .where("status", "=", "active")
+                          .findOne();
+
+// to get only specified fields of the record:
+var googleUserID /* : { id:Int } */ = orm.users
+                          .where("email", "=", "support@google.com")
+                          .findOneFields({ id:0 }); // field name and literal type used, not value
 ```
