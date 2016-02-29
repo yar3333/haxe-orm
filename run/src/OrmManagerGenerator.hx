@@ -44,7 +44,7 @@ class OrmManagerGenerator
 	{
 		var model:HaxeClass = new HaxeClass(autogenManagerClassName);
 		
-		model.addVar({ haxeName:"table", haxeType:"String", haxeDefVal:table }, false, false, true);
+		model.addVar({ haxeName:"table", haxeType:"String", haxeDefVal:'"' + table + '"' }, false, false, true);
 		model.addVar(null);
 		model.addVar({ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null }, true, ["orm.SqlSelectQuery"]);
 		model.addVar({ haxeName:"orm", haxeType:customOrmClassName, haxeDefVal:null }, true);
@@ -86,8 +86,8 @@ class OrmManagerGenerator
 		(
 			'where',
 			[ OrmTools.createVar('field', 'String'), OrmTools.createVar('op', 'String'), OrmTools.createVar('value', 'Dynamic') ],
-			'orm.SqlSelectQuery',
-			"return new orm.SqlSelectQuery<" + modelClassName + ">(this).where(field, op, value);"
+			'orm.SqlQuery<' + modelClassName + '>',
+			"return new orm.SqlQuery<" + modelClassName + ">(this).where(field, op, value);"
 		);
 		
 		var getVars = Lambda.filter(vars, function(v:OrmHaxeVar) return v.isKey);
