@@ -2,26 +2,35 @@ package orm;
 
 private typedef Manager<T> =
 {
-	var table : String;
-	var db : Db;
-	
 	function getBySqlMany(sql:String) : Array<T>;
 	function getBySqlOne(sql:String) : T;
 }
 
 class SqlQuery<T>
 {
+	var table : String;
+	var db : Db;
 	var manager : Manager<T>;
-	var conditions = new Array<String>();
 	
-	public function new(manager:Manager<T>)
+	var conditions = new Array<String>();
+	var orderBys = new Array<String>();
+	
+	public function new(table:String, db:Db, manager:Manager<T>)
 	{
+		this.table = table;
+		this.db = db;
 		this.manager = manager;
 	}
 	
 	public function where(field:String, op:String, value:Dynamic) : SqlQuery<T>
 	{
-		conditions.push(field + " " + op + " " + manager.db.quote(value));
+		conditions.push(field + " " + op + " " + db.quote(value));
+		return this;
+	}
+	
+	public function orderBy(field:String, ?postSql:String) : SqlQuery<T>
+	{
+		orderBys.push(field + (postSql != null && postSql != "" ? " " + postSql : ""));
 		return this;
 	}
 	
@@ -37,12 +46,12 @@ class SqlQuery<T>
 	
 	public function findManyFields<TT:{}>(fields:TT, ?limit:Int) : TypedResultSet<TT>
 	{
-		return cast manager.db.query(getSelectSql(fields) + getLimitSql(limit));
+		return cast db.query(getSelectSql(fields) + getLimitSql(limit));
 	}
 	
 	public function findOneFields<TT:{}>(fields:TT) : TT
 	{
-		var rr = manager.db.query(getSelectSql(fields) + "\nLIMIT 1");
+		var rr = db.query(getSelectSql(fields) + "\nLIMIT 1");
 		if (rr.hasNext()) return cast rr.next();
 		return null;
 	}
@@ -63,20 +72,20 @@ class SqlQuery<T>
 			}
 			else
 			{
-				sets.push("`" + name + "`= " + manager.db.quote(v));
+				sets.push("`" + name + "`= " + db.quote(v));
 			}
 		}
-		manager.db.query("UPDATE `" + manager.table + "`\nSET\n\t" + sets.join("\n\t") + getWhereSql() + getLimitSql(limit));
+		db.query("UPDATE `" + table + "`\nSET\n\t" + sets.join("\n\t") + getWhereSql() + getLimitSql(limit));
 	}
 	
 	public function delete(?limit:Int) : Void
 	{
-		manager.db.query("DELETE FROM `" + manager.table + "`" + getWhereSql() + getLimitSql(limit));
+		db.query("DELETE FROM `" + table + "`" + getWhereSql() + getLimitSql(limit));
 	}
 	
 	public function count() : Int
 	{
-		var r = manager.db.query("SELECT COUNT(*) FROM `" + manager.table + "`" + getWhereSql());
+		var r = db.query("SELECT COUNT(*) FROM `" + table + "`" + getWhereSql());
 		if (!r.hasNext()) return 0;
 		return r.getIntResult(0);
 	}
@@ -100,12 +109,17 @@ class SqlQuery<T>
 			f.push("*");
 		}
 		
-		return "SELECT " + f.join(", ") + "\nFROM `" + manager.table + "`" + getWhereSql();
+		return "SELECT " + f.join(", ") + "\nFROM `" + table + "`" + getWhereSql() + getOrderBySql();
 	}
 	
 	function getWhereSql() : String
 	{
 		return conditions.length > 0 ? "\nWHERE " + conditions.join("\n\tAND ") : "";
+	}
+	
+	function getOrderBySql() : String
+	{
+		return orderBys.length > 0 ? "\nORDER BY " + orderBys.join(", ") : "";
 	}
 	
 	function getLimitSql(limit:Int) : String
