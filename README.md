@@ -128,8 +128,12 @@ trace(googleUserFields.id + " / " + googleUserFields.name);
 // import orm.SqlValues;
 orm.users
    .where("status", "=", "winner")
-   .update({ status:"done", score:SqlExpression("score + 1") });
-   
+   .update
+    ([ 
+         "status" => "done",
+         "score" => SqlExpression("score + 1") 
+    ]);
+
 orm.users
    .where("status", "=", "toRemove")
    .delete();
