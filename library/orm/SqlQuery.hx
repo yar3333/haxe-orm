@@ -56,23 +56,23 @@ class SqlQuery<T>
 		return null;
 	}
 	
-	public function update(fields:Dynamic, ?limit:Int) : Void
+	public function update(fields:Map<String, Dynamic>, ?limit:Int) : Void
 	{
 		var sets = [];
-		for (name in Reflect.fields(fields))
+		for (name in fields.keys())
 		{
-			var v = Reflect.field(fields, name);
+			var v = fields.get(name);
 			
 			if (Std.is(v, SqlValues))
 			{
 				switch (cast v:SqlValues)
 				{
-					case SqlValues.SqlExpression(s): sets.push("`" + name + "`= " + v);
+					case SqlValues.SqlExpression(s): sets.push("`" + name + "` = " + v);
 				}
 			}
 			else
 			{
-				sets.push("`" + name + "`= " + db.quote(v));
+				sets.push("`" + name + "` = " + db.quote(v));
 			}
 		}
 		db.query("UPDATE `" + table + "`\nSET\n\t" + sets.join("\n\t") + getWhereSql() + getLimitSql(limit));
