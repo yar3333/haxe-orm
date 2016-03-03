@@ -18,7 +18,7 @@ class OrmGenerator
 		this.srcPath = Path.normalize(srcPath) + "/";
 	}
 	
-	public function generate(db:Db, autogenPackage:String, customPackage:String, ignoreTables:Array<String>)
+	public function generate(db:Db, autogenPackage:String, customPackage:String, ignoreTables:Array<String>, noInstantiateManagers:Array<String>)
 	{
 		var autogenOrmClassName = autogenPackage + ".Orm";
 		var customOrmClassName = customPackage + ".Orm";
@@ -36,15 +36,15 @@ class OrmGenerator
         }
 		
 		Log.start("MANAGERS => " + customOrmClassName);
-		makeAutogenOrm(tables, autogenOrmClassName, customOrmClassName);
+		makeAutogenOrm(tables, autogenOrmClassName, customOrmClassName, noInstantiateManagers);
 		makeCustomOrm(customOrmClassName, autogenOrmClassName);
 		Log.finishSuccess();
     }
 	
 	
-	function makeAutogenOrm(tables:Array<OrmTable>, autogenOrmClassName:String, customOrmClassName:String)
+	function makeAutogenOrm(tables:Array<OrmTable>, autogenOrmClassName:String, customOrmClassName:String, noInstantiateManagers:Array<String>)
 	{
-		var autogenOrm = getAutogenOrm(tables, autogenOrmClassName);
+		var autogenOrm = getAutogenOrm(tables, autogenOrmClassName, noInstantiateManagers);
 		var destFileName = srcPath + autogenOrmClassName.replace(".", "/") + ".hx";
 		FileSystem.createDirectory(Path.directory(destFileName));
 		File.saveContent(
@@ -64,7 +64,7 @@ class OrmGenerator
 		}
 	}
 	
-	function getAutogenOrm(tables:Array<OrmTable>, fullClassName:String) : HaxeClass
+	function getAutogenOrm(tables:Array<OrmTable>, fullClassName:String, noInstantiateManagers:Array<String>) : HaxeClass
 	{
 		var clas = new HaxeClass(fullClassName);
 		
@@ -79,7 +79,10 @@ class OrmGenerator
 				{ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null } 
 			  ]
 			, "Void"
-			, Lambda.map(tables, function(t) return "this." + t.varName + " = new " + t.customManagerClassName + "(db, cast this);").join("\n")
+			, tables
+				.filter(function(t) return noInstantiateManagers.indexOf(t.tableName) < 0)
+				.map(function(t) return "this." + t.varName + " = new " + t.customManagerClassName + "(db, cast this);")
+				.join("\n")
 		);
         
 		return clas;
