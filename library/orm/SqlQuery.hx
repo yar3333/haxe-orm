@@ -24,7 +24,7 @@ class SqlQuery<T>
 	
 	public function where(field:String, op:String, value:Dynamic) : SqlQuery<T>
 	{
-		conditions.push(field + " " + op + " " + db.quote(value));
+		conditions.push(field + " " + op + " " + quoteValue(value));
 		return this;
 	}
 	
@@ -125,5 +125,19 @@ class SqlQuery<T>
 	function getLimitSql(limit:Int) : String
 	{
 		return limit != null ? "\nLIMIT " + limit : "";
+	}
+	
+	function quoteValue(v:Dynamic) : String
+	{
+		#if php
+		if (untyped __call__("is_array", v)) v = php.Lib.toHaxeArray(v);
+		#end
+		
+		if (Std.is(v, Array))
+		{
+			return "(" + (cast v:Array<Dynamic>).map(db.quote).join(", ") + ")";
+		}
+		
+		return db.quote(v);
 	}
 }
