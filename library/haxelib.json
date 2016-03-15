@@ -4,8 +4,8 @@
   "tags": ["database","models"],
   "description": "Object-relational mapping library. Can generate classes from database tables. MySQL and SqlLite are supported for now.",
   "contributors": ["yar3333"],
-  "releasenote": "#OLD_TEXT<br>\n<br>\nSupport `mediumint` MySQL type. Add `SqlQuery` class. Add `--ignore-table` switch. Add `--no-instantiate-manager` switch.",
-  "version": "2.0.0",
+  "releasenote": "SqlQuery: support WHERE/IN (array as value).",
+  "version": "2.0.1",
   "url": "https://bitbucket.org/yar3333/haxe-orm",
   "dependencies": {"stdlib":""}
 }
