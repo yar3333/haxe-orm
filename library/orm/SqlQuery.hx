@@ -67,19 +67,7 @@ class SqlQuery<T>
 		var sets = [];
 		for (name in fields.keys())
 		{
-			var v = fields.get(name);
-			
-			if (Std.is(v, SqlValues))
-			{
-				switch (cast v:SqlValues)
-				{
-					case SqlValues.SqlExpression(s): sets.push("`" + name + "` = " + v);
-				}
-			}
-			else
-			{
-				sets.push("`" + name + "` = " + db.quote(v));
-			}
+			sets.push("`" + name + "` = " + quoteValue(fields.get(name)));
 		}
 		db.query("UPDATE `" + table + "`\nSET\n\t" + sets.join("\n\t") + getWhereSql() + getLimitSql(limit));
 	}
@@ -98,8 +86,7 @@ class SqlQuery<T>
 	
 	public function exists() : Bool
 	{
-		var r = findOneFields({ "1":Int });
-		return r != null && Reflect.field(r, "1") != null;
+		return findOneFields({ "1":"" }) != null;
 	}
 	
 	function getSelectSql<TT:{}>(fields:TT) : String
@@ -108,7 +95,7 @@ class SqlQuery<T>
 		
 		if (fields != null)
 		{
-			for (name in Reflect.fields(fields)) f.push(name);
+			for (name in Reflect.fields(fields)) f.push("`" + name + "`");
 		}
 		else
 		{
@@ -135,6 +122,15 @@ class SqlQuery<T>
 	
 	function quoteValue(v:Dynamic) : String
 	{
+		if (Std.is(v, SqlValues))
+		{
+			switch (cast v:SqlValues)
+			{
+				case SqlValues.SqlExpression(s): return s;
+				case SqlValues.SqlField(s): return "`" + s + "`";
+			}
+		}
+		
 		#if php
 		if (untyped __call__("is_array", v)) v = php.Lib.toHaxeArray(v);
 		#end

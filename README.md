@@ -125,13 +125,12 @@ var googleUserFields = orm.users
                           .findOneFields({ id:0, name:"" }); // field name and value type are used, not value itself
 trace(googleUserFields.id + " / " + googleUserFields.name);
 
-// import orm.SqlValues;
 orm.users
    .where("status", "=", "winner")
    .update
     ([ 
          "status" => "done",
-         "score" => SqlExpression("score + 1") 
+         "score" => db.expression("score + 1")
     ]);
 
 orm.users
@@ -142,4 +141,6 @@ orm.users
 ## Tips ##
 
 * `TinyInt(1)` type in your MySQL database treated as `Bool` in code.
+* Use `db.expression(s)` to specify raw SQL.
+* Use `db.field(s)` to specify table field (became quoted as identifier in SQL).
 * Run `haxelib run orm` to get help about command-line switches.
