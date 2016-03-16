@@ -4,8 +4,8 @@
   "tags": ["database","models"],
   "description": "Object-relational mapping library. Can generate classes from database tables. MySQL and SqlLite are supported for now.",
   "contributors": ["yar3333"],
-  "releasenote": "SqlQuery: support WHERE/IN (array as value).",
-  "version": "2.0.1",
+  "releasenote": "SqlQuery: orderBy => orderAsc + orderDesc. Add `db.expression()` and `db.field()`. Bugfixes.",
+  "version": "2.0.2",
   "url": "https://bitbucket.org/yar3333/haxe-orm",
   "dependencies": {"stdlib":""}
 }
