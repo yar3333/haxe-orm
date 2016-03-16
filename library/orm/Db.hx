@@ -92,4 +92,14 @@ class Db
 			throw "Param '" + name + "' not found while binding sql query '" + sql + "'.";
 		});
 	}
+	
+	public function expression(s:String) : SqlValues
+	{
+		return SqlValues.SqlExpression(s);
+	}
+	
+	public function field(s:String) : SqlValues
+	{
+		return SqlValues.SqlField(s);
+	}
 }
