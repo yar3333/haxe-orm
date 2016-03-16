@@ -28,9 +28,15 @@ class SqlQuery<T>
 		return this;
 	}
 	
-	public function orderBy(field:String, ?postSql:String) : SqlQuery<T>
+	public function orderAsc(value:Dynamic) : SqlQuery<T>
 	{
-		orderBys.push(field + (postSql != null && postSql != "" ? " " + postSql : ""));
+		orderBys.push(quoteValue(value));
+		return this;
+	}
+	
+	public function orderDesc(value:Dynamic) : SqlQuery<T>
+	{
+		orderBys.push(quoteValue(value) + " DESC");
 		return this;
 	}
 	
