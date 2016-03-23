@@ -5,6 +5,7 @@ import orm.Db;
 import stdlib.FileSystem;
 import sys.io.File;
 using stdlib.StringTools;
+using stdlib.Lambda;
 
 class OrmManagerGenerator 
 {
@@ -100,28 +101,26 @@ class OrmManagerGenerator
 			);
 		}
 		
-		var createVars = Lambda.filter(vars, function(v:OrmHaxeVar) return !v.isAutoInc);
-        var foreignKeys = db.connection.getForeignKeys(table);
-        var foreignKeyVars = Lambda.filter(vars, function(v:OrmHaxeVar) return !v.isAutoInc);
+		var createVars = vars.filter(function(v:OrmHaxeVar) return !v.isAutoInc);
 		model.addMethod
 		(
 			'create',
 			createVars,
 			modelClassName,
             (
-                Lambda.exists(createVars, function(v:OrmHaxeVar) return v.name == 'position')
+                createVars.exists(function(v) return v.name == 'position')
                 ? "if (position == null)\n"
-                 +"{\n"
-                 +"\tposition = db.query('SELECT MAX(`position`) FROM `" + table + "`" 
-                    +getWhereSql(getForeignKeyVars(db, table, vars))
-                    +").getIntResult(0) + 1;\n"
-                 +"}\n\n"
+                + "{\n"
+                + "\tposition = db.query('SELECT MAX(`position`) FROM `" + table + "`" 
+                    + getWhereSql(getForeignKeyVars(db, table, vars))
+                    + ").getIntResult(0) + 1;\n"
+                 + "}\n\n"
                 : ""
             )
 			+"db.query('INSERT INTO `" + table + "`("
-				+ Lambda.map(createVars, function(v) return "`" + v.name + "`").join(", ")
+				+ createVars.map(function(v) return "`" + v.name + "`").join(", ")
 			+") VALUES (' + "
-				+ Lambda.map(createVars, function(v) return "db.quote(" + v.haxeName + ")").join(" + ', ' + ")
+				+ createVars.map(function(v) return "db.quote(" + v.haxeName + ")").join(" + ', ' + ")
 			+" + ')');\n"
 			+"return newModelFromParams(" + Lambda.map(vars, function(v) return v.isAutoInc ? 'db.lastInsertId()' : v.haxeName).join(", ") + ");"
 		);
