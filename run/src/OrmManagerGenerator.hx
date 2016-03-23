@@ -65,7 +65,7 @@ class OrmManagerGenerator
 			vars,
 			modelClassName,
 			  "var _obj = new " + modelClassName + "(db, orm);\n"
-			+ Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + ' = ' + v.haxeName + ';').join('\n') + "\n"
+			+ vars.map(function(v) return '_obj.' + v.haxeName + ' = ' + v.haxeName + ';').join('\n') + "\n"
 			+ "return _obj;",
 			true
 		);
@@ -76,7 +76,7 @@ class OrmManagerGenerator
 			[ OrmTools.createVar('d', 'Dynamic') ],
 			modelClassName,
 			  "var _obj = new " + modelClassName + "(db, orm);\n"
-			+ Lambda.map(vars, function(v:OrmHaxeVar) return '_obj.' + v.haxeName + " = Reflect.field(d, '" + v.haxeName + "');").join('\n') + "\n"
+			+ vars.map(function(v) return '_obj.' + v.haxeName + " = Reflect.field(d, '" + v.haxeName + "');").join('\n') + "\n"
 			+ "return _obj;"
 			, true
 		);
@@ -89,7 +89,7 @@ class OrmManagerGenerator
 			"return new orm.SqlQuery<" + modelClassName + ">(\"" + table + "\", db, this).where(field, op, value);"
 		);
 		
-		var getVars = Lambda.filter(vars, function(v:OrmHaxeVar) return v.isKey);
+		var getVars = vars.filter(function(v) return v.isKey);
 		if (getVars.length > 0)
 		{
 			model.addMethod
@@ -101,7 +101,7 @@ class OrmManagerGenerator
 			);
 		}
 		
-		var createVars = vars.filter(function(v:OrmHaxeVar) return !v.isAutoInc);
+		var createVars = vars.filter(function(v) return !v.isAutoInc);
 		model.addMethod
 		(
 			'create',
@@ -122,7 +122,7 @@ class OrmManagerGenerator
 			+") VALUES (' + "
 				+ createVars.map(function(v) return "db.quote(" + v.haxeName + ")").join(" + ', ' + ")
 			+" + ')');\n"
-			+"return newModelFromParams(" + Lambda.map(vars, function(v) return v.isAutoInc ? 'db.lastInsertId()' : v.haxeName).join(", ") + ");"
+			+"return newModelFromParams(" + vars.map(function(v) return v.isAutoInc ? 'db.lastInsertId()' : v.haxeName).join(", ") + ");"
 		);
 		
 		var deleteVars = Lambda.filter(vars, function(v:OrmHaxeVar) return v.isKey);
@@ -168,7 +168,7 @@ class OrmManagerGenerator
 		
         for (fields in db.connection.getUniques(table))
 		{
-            var vs = Lambda.filter(vars, function(v) return Lambda.has(fields, v.name));
+            var vs = vars.filter(function(v) return fields.has(v.name));
 			createGetByMethodOne(table, vars, modelClassName, vs, model);
 		}
 		
@@ -195,7 +195,7 @@ class OrmManagerGenerator
         
         model.addMethod
 		(
-			'getBy' + Lambda.map(whereVars, function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
+			'getBy' + whereVars.map(function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
 			whereVars, 
 			modelClassName,
 			"return getBySqlOne('SELECT * FROM `" + table + "`" + getWhereSql(whereVars) + ");"
@@ -208,8 +208,8 @@ class OrmManagerGenerator
 
 		model.addMethod
 		(
-			'getBy' + Lambda.map(whereVars, function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
-			Lambda.concat(whereVars, [ OrmTools.createVar('_order', 'String', getOrderDefVal(vars)) ]), 
+			'getBy' + whereVars.map(function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
+			whereVars.concat([ OrmTools.createVar('_order', 'String', getOrderDefVal(vars)) ]), 
 			'Array<' + modelClassName + '>',
 			"return getBySqlMany('SELECT * FROM `" + table + "`" + getWhereSql(whereVars) + " + (_order != null ? ' ORDER BY ' + _order : ''));"
 		);
@@ -217,23 +217,23 @@ class OrmManagerGenerator
 	
 	function getOrderDefVal(vars:List<OrmHaxeVar>) : String
 	{
-		var positionVar = Lambda.filter(vars, function(v) return v.name == 'position');
+		var positionVar = vars.filter(function(v) return v.name == 'position');
 		return positionVar.isEmpty() ? "null" : "'" + positionVar.first().haxeName + "'";
 	}
     
     function getWhereSql(vars:Iterable<OrmHaxeVar>) : String
     {
         return vars.iterator().hasNext()
-            ? " WHERE " + Lambda.map(vars, function(v) return "`" + v.name + "` = ' + db.quote(" + v.haxeName + ")").join("+ ' AND ")
+            ? " WHERE " + vars.map(function(v) return "`" + v.name + "` = ' + db.quote(" + v.haxeName + ")").join("+ ' AND ")
             : "'";
     }
     
     function getForeignKeyVars(db:Db, table:String, vars:List<OrmHaxeVar>) : List<OrmHaxeVar>
     {
         var foreignKeys = db.connection.getForeignKeys(table);
-        var foreignKeyVars = Lambda.filter(vars, function(v)
+        var foreignKeyVars = vars.filter(function(v)
 		{
-            return Lambda.exists(foreignKeys, function(fk) return fk.key == v.name);
+            return foreignKeys.exists(function(fk) return fk.key == v.name);
         });
         return foreignKeyVars;
     }
