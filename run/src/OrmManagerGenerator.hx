@@ -125,7 +125,7 @@ class OrmManagerGenerator
 			+"return newModelFromParams(" + vars.map(function(v) return v.isAutoInc ? 'db.lastInsertId()' : v.haxeName).join(", ") + ");"
 		);
 		
-		var deleteVars = Lambda.filter(vars, function(v:OrmHaxeVar) return v.isKey);
+		var deleteVars = vars.filter(function(v:OrmHaxeVar) return v.isKey);
 		if (deleteVars.length == 0) deleteVars = vars;
 		model.addMethod
 		(
