@@ -57,6 +57,14 @@ class Main
 			+ "In this case you must instantiate these managers manually\n"
 			+ "(in regular case - in your custom Orm constructor).");
 		
+		options.addRepeatable("positions", String, [ "-pf", "--position-field" ], 
+			  "Field name treated as record number (1, 2, 3, ...).\n"
+			+ "Values of such fields will be autocalculated on records creating.\n"
+			+ "Can be specified in next forms:\n"
+			+ "\t`field` or `*.field` - to specify fields in any table;\n"
+			+ "\t`table.field` - to specify field in specified table only.\n"
+			+ "Default is `position`.");
+		
 		options.parse(args);
         
 		if (args.length > 0)
@@ -84,7 +92,12 @@ class Main
 				if (databaseConnectionString != "")
 				{
 					Log.start("Generate object related mapping classes");
-					new OrmGenerator(project, srcPath).generate(new Db(databaseConnectionString), options.get("autogenPackage"), options.get("customPackage"), options.get("ignoreTables"), options.get("noInstantiateManagers"));
+					
+					var positions : Array<String> = options.get("positions");
+					if (positions.length == 0) positions = [ "position" ];
+					
+					new OrmGenerator(project, srcPath).generate(new Db(databaseConnectionString), options.get("autogenPackage"), options.get("customPackage"), options.get("ignoreTables"), options.get("noInstantiateManagers"), new OrmPositions(positions));
+					
 					Log.finishSuccess();
 				}
 				else

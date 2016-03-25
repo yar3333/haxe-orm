@@ -45,7 +45,6 @@ class HaxeClass
 				  + (isPrivate ? "" : "public ")
 				  + (isStatic ? "static " : "")
 				  + "var " + v.haxeName + (isReadOnlyProperty ? "(default, null)" : "") + " : " + v.haxeType
-				  + (v.haxeDefVal != null ? " = " + v.haxeDefVal : "")
 				  + ";";
 			vars.push(s);
 		}

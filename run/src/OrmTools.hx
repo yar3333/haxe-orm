@@ -1,5 +1,7 @@
 import orm.DbDriver;
+import HaxeClass.HaxeVar;
 using stdlib.StringTools;
+using stdlib.Lambda;
 
 class OrmTools 
 {
@@ -42,26 +44,24 @@ class OrmTools
 		return "String";
 	}
 	
-	public static function createVar(haxeName:String, haxeType:String, haxeDefVal:String = null) : OrmHaxeVar
+	public static function createVar(haxeName:String, haxeType:String, ?haxeDefVal:String) : HaxeVar
 	{
-		return {
+		return
+		{
 			 haxeName : haxeName
 			,haxeType : haxeType
 			,haxeDefVal : haxeDefVal
-			,name : null
-			,type : null
-			,isNull : false
-			,isKey : false
-			,isAutoInc : false
 		};
 	}
 	
-	static function field2var(f:DbTableFieldData) : OrmHaxeVar
+	static function field2var(table:String, f:DbTableFieldData, positions:OrmPositions) : OrmHaxeVar
 	{ 
-		return {
-			 haxeName : f.name
+		return
+		{
+			 table : table
+			,haxeName : f.name
 			,haxeType : sqlType2haxeType(f.type)
-			,haxeDefVal : (f.name == "position" ? "null" : null)
+			,haxeDefVal : positions.is({ table:table, name:f.name}) ? "null" : null
 			
 			,name : f.name
 			,type : f.type
@@ -71,8 +71,8 @@ class OrmTools
 		};
 	}
 	
-	public static function fields2vars(fields:Iterable<DbTableFieldData>) : List<OrmHaxeVar>
+	public static function fields2vars(table:String, fields:Iterable<DbTableFieldData>, positions:OrmPositions) : Array<OrmHaxeVar>
 	{
-		return Lambda.map(fields, OrmTools.field2var);
+		return fields.map.fn(OrmTools.field2var(table, _, positions)).array();
 	}
 }
