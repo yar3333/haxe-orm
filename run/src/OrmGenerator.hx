@@ -18,7 +18,7 @@ class OrmGenerator
 		this.srcPath = Path.normalize(srcPath) + "/";
 	}
 	
-	public function generate(db:Db, autogenPackage:String, customPackage:String, ignoreTables:Array<String>, noInstantiateManagers:Array<String>)
+	public function generate(db:Db, autogenPackage:String, customPackage:String, ignoreTables:Array<String>, noInstantiateManagers:Array<String>, positions:OrmPositions)
 	{
 		var autogenOrmClassName = autogenPackage + ".Orm";
 		var customOrmClassName = customPackage + ".Orm";
@@ -30,8 +30,8 @@ class OrmGenerator
 			if (ignoreTables.indexOf(tableName) >= 0) continue;
 			
 			var table = new OrmTable(tableName, autogenPackage, customPackage);
-			new OrmModelGenerator(project).make(db, table, customOrmClassName, srcPath);
-			new OrmManagerGenerator(project).make(db, table, customOrmClassName, srcPath);
+			new OrmModelGenerator(project).make(db, table, customOrmClassName, srcPath, positions);
+			new OrmManagerGenerator(project).make(db, table, customOrmClassName, srcPath, positions);
 			tables.push(table);
         }
 		

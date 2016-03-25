@@ -15,11 +15,11 @@ class OrmModelGenerator
 		this.project = project;
 	}
 	
-	public function make(db:Db, table:OrmTable, customOrmClassName:String, srcPath:String) : Void
+	public function make(db:Db, table:OrmTable, customOrmClassName:String, srcPath:String, positions:OrmPositions) : Void
 	{
 		Log.start(table.tableName + " => " + table.customModelClassName);
 		
-		var vars = OrmTools.fields2vars(db.connection.getFields(table.tableName));
+		var vars = OrmTools.fields2vars(table.tableName, db.connection.getFields(table.tableName), positions);
 		
 		var autogenModel = getAutogenModel(table.tableName, vars, table.autogenModelClassName, customOrmClassName);
 		var destFileName = srcPath + table.autogenModelClassName.replace(".", "/") + ".hx";
@@ -40,7 +40,7 @@ class OrmModelGenerator
 		Log.finishSuccess();
 	}
 	
-	function getAutogenModel(table:String, vars:List<OrmHaxeVar>, modelClassName:String, customOrmClassName:String) : HaxeClass
+	function getAutogenModel(table:String, vars:Array<OrmHaxeVar>, modelClassName:String, customOrmClassName:String) : HaxeClass
 	{
 		var model = new HaxeClass(modelClassName);
 		
@@ -74,7 +74,7 @@ class OrmModelGenerator
 			
 			var savedVars = Lambda.filter(vars, function(v) return !v.isKey);
 			var whereVars = Lambda.filter(vars, function(v) return v.isKey);
-			model.addMethod("save", new List<OrmHaxeVar>(), "Void",
+			model.addMethod("save", new Array<OrmHaxeVar>(), "Void",
 				  "db.query(\n"
 				    + "\t 'UPDATE `" + table + "` SET '\n"
 					+ "\t\t+  '" + Lambda.map(savedVars, function(v) return "`" + v.name + "` = ' + db.quote(" + v.haxeName + ")").join("\n\t\t+', ")
