@@ -48,6 +48,16 @@ class OrmManagerGenerator
 		
 		model.addVar({ haxeName:"db", haxeType:"orm.Db", haxeDefVal:null }, true);
 		model.addVar({ haxeName:"orm", haxeType:customOrmClassName, haxeDefVal:null }, true);
+		model.addVar({ haxeName:"query(get, never)", haxeType:"orm.SqlQuery<" + modelClassName + ">", haxeDefVal:null });
+		
+		model.addMethod
+		(
+			'get_query',
+			[],
+			'orm.SqlQuery<' + modelClassName + '>',
+			"return new orm.SqlQuery<" + modelClassName + ">(\"" + table + "\", db, this);",
+			true
+		);
 		
 		model.addMethod
 		(
@@ -87,7 +97,7 @@ class OrmManagerGenerator
 			'where',
 			[ OrmTools.createVar('field', 'String'), OrmTools.createVar('op', 'String'), OrmTools.createVar('value', 'Dynamic') ],
 			'orm.SqlQuery<' + modelClassName + '>',
-			"return new orm.SqlQuery<" + modelClassName + ">(\"" + table + "\", db, this).where(field, op, value);"
+			"return query.where(field, op, value);"
 		);
 		
 		var getVars = vars.filter(function(v) return v.isKey);
