@@ -46,7 +46,7 @@ class DbDriver_sqlite implements DbDriver
         var sql = query("SELECT sql FROM sqlite_master WHERE type='table' AND name='" + table + "'").getResult(0);
 		for (s in sql.replace("\r", "").split("\n"))
 		{
-			if (s.startsWith("\"" + field + "\""))
+			if (s.startsWith("\"" + field + "\"") || s.startsWith(field))
 			{
 				return s.substr(field.length + 3).indexOf("AUTOINCREMENT") >= 0;
 			}
