@@ -1,3 +1,6 @@
+using stdlib.Lambda;
+using stdlib.StringTools;
+
 class OrmTable
 {
 	public var tableName(default, null) : String;
@@ -33,11 +36,11 @@ class OrmTable
 			var pack = packs.shift();
 			var words = pack.split("_");
 			s += words.shift();
-			s += Lambda.map(words, function(w) return OrmTools.capitalize(w)).join("");
+			s += words.map.fn(_.capitalize()).join("");
 			s += "_";
 		}
 		
-		s += Lambda.mapi(packs[0].split("_"), function(n, w) return n == 0 ? w : OrmTools.capitalize(w)).join("");
+		s += packs[0].split("_").mapi(function(n, w) return n == 0 ? w : w.capitalize()).join("");
 		
 		return s;
 	}
@@ -52,11 +55,11 @@ class OrmTable
 			var pack = packs.shift();
 			var words = pack.split("_");
 			s += words.shift();
-			s += Lambda.map(words, function(w) return OrmTools.capitalize(w)).join("");
+			s += words.map.fn(_.capitalize()).join("");
 			s += ".";
 		}
 		
-		s += Lambda.map(packs[0].split("_"), function(w) return OrmTools.capitalize(w)).join("");
+		s += packs[0].split("_").map.fn(_.capitalize()).join("");
 		
 		return s;
     }

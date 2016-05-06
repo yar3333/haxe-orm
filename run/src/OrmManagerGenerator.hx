@@ -76,7 +76,7 @@ class OrmManagerGenerator
 			vars,
 			modelClassName,
 			  "var _obj = new " + modelClassName + "(db, orm);\n"
-			+ vars.map(function(v) return '_obj.' + v.haxeName + ' = ' + v.haxeName + ';').join('\n') + "\n"
+			+ vars.map.fn('_obj.' + _.haxeName + ' = ' + _.haxeName + ';').join('\n') + "\n"
 			+ "return _obj;",
 			true
 		);
@@ -87,7 +87,7 @@ class OrmManagerGenerator
 			[ OrmTools.createVar('d', 'Dynamic') ],
 			modelClassName,
 			  "var _obj = new " + modelClassName + "(db, orm);\n"
-			+ vars.map(function(v) return '_obj.' + v.haxeName + " = Reflect.field(d, '" + v.haxeName + "');").join('\n') + "\n"
+			+ vars.map.fn('_obj.' + _.haxeName + " = Reflect.field(d, '" + _.haxeName + "');").join('\n') + "\n"
 			+ "return _obj;"
 			, true
 		);
@@ -100,7 +100,7 @@ class OrmManagerGenerator
 			"return query.where(field, op, value);"
 		);
 		
-		var getVars = vars.filter(function(v) return v.isKey);
+		var getVars = vars.filter.fn(_.isKey);
 		if (getVars.length > 0)
 		{
 			model.addMethod
@@ -112,54 +112,55 @@ class OrmManagerGenerator
 			);
 		}
 		
-		
-		var createVars = vars.filter(function(v) return !v.isAutoInc);
+		var createVars = vars.filter.fn(!_.isAutoInc);
 		
 		model.addMethod
 		(
 			'create',
 			createVars,
 			modelClassName,
-			createVars.filter(positions.is).map(function(v) return
-				  "if (" + v.haxeName + " == null)\n"
+			createVars.filter(positions.is).map.fn
+			(
+				  "if (" + _.haxeName + " == null)\n"
 				+ "{\n"
-				+ "\tposition = db.query('SELECT MAX(`" + v.name + "`) FROM `" + table + "`" 
+				+ "\tposition = db.query('SELECT MAX(`" + _.name + "`) FROM `" + table + "`" 
 					+ getWhereSql(getForeignKeyVars(db, table, vars))
 					+ ").getIntResult(0) + 1;\n"
 				+ "}\n\n"
 			).join("")
 			+"db.query('INSERT INTO `" + table + "`("
-				+ createVars.map(function(v) return "`" + v.name + "`").join(", ")
+				+ createVars.map.fn("`" + _.name + "`").join(", ")
 			+") VALUES (' + "
-				+ createVars.map(function(v) return "db.quote(" + v.haxeName + ")").join(" + ', ' + ")
+				+ createVars.map.fn("db.quote(" + _.haxeName + ")").join(" + ', ' + ")
 			+" + ')');\n"
-			+"return newModelFromParams(" + vars.map(function(v) return v.isAutoInc ? 'db.lastInsertId()' : v.haxeName).join(", ") + ");"
+			+"return newModelFromParams(" + vars.map.fn(_.isAutoInc ? 'db.lastInsertId()' : _.haxeName).join(", ") + ");"
 		);
 		
 		model.addMethod
 		(
 			'createNamed',
-			[ OrmTools.createVar("data", "{ " + createVars.map(function(v) return v.haxeName + ":" + v.haxeType).join(", ") + " }") ],
+			[ OrmTools.createVar("data", "{ " + createVars.map.fn(_.haxeName + ":" + _.haxeType).join(", ") + " }") ],
 			modelClassName,
-			createVars.filter.fn(positions.is).map(function(v) return
-				"if (data." + v.haxeName + " == null)\n"
+			createVars.filter.fn(positions.is).map.fn
+			(
+				"if (data." + _.haxeName + " == null)\n"
 				+ "{\n"
-				+ "\tdata." + v.haxeName + " = db.query('SELECT MAX(`" + v.name + "`) FROM `" + table + "`" 
+				+ "\tdata." + _.haxeName + " = db.query('SELECT MAX(`" + _.name + "`) FROM `" + table + "`" 
 					+ getWhereSql(getForeignKeyVars(db, table, vars))
 					+ ").getIntResult(0) + 1;\n"
 				+ "}\n\n"
 			).join("")
 			+"db.query('INSERT INTO `" + table + "`("
-				+ createVars.map(function(v) return "`" + v.name + "`").join(", ")
+				+ createVars.map.fn("`" + _.name + "`").join(", ")
 			+") VALUES (' + "
-				+ createVars.map(function(v) return "db.quote(data." + v.haxeName + ")").join(" + ', ' + ")
+				+ createVars.map.fn("db.quote(data." + _.haxeName + ")").join(" + ', ' + ")
 			+" + ')');\n"
-			+"return newModelFromParams(" + vars.map(function(v) return v.isAutoInc ? 'db.lastInsertId()' : "data." + v.haxeName).join(", ") + ");"
+			+"return newModelFromParams(" + vars.map.fn(_.isAutoInc ? 'db.lastInsertId()' : "data." + _.haxeName).join(", ") + ");"
 		);
 		
-		var dataVars = [ OrmTools.createVar("data", "{ " + createVars.map(function(v) return (v.isKey ? "" : "?") + v.haxeName + ":" + v.haxeType).join(", ") + " }") ];
+		var dataVars = [ OrmTools.createVar("data", "{ " + createVars.map.fn((_.isKey ? "" : "?") + _.haxeName + ":" + _.haxeType).join(", ") + " }") ];
 		
-		if (vars.exists(function(v) return v.isKey))
+		if (vars.exists.fn(_.isKey))
 		{
 			model.addMethod
 			(
@@ -167,7 +168,7 @@ class OrmManagerGenerator
 				dataVars,
 				modelClassName,
 				 "createOptionalNoReturn(data);\n"
-				+"return get(" + getVars.map(function(v) return v.isAutoInc ? 'db.lastInsertId()' : "data." + v.haxeName).join(", ") + ");"
+				+"return get(" + getVars.map.fn(_.isAutoInc ? 'db.lastInsertId()' : "data." + _.haxeName).join(", ") + ");"
 			);
 		}
 		
@@ -176,26 +177,27 @@ class OrmManagerGenerator
 			'createOptionalNoReturn',
 			dataVars,
 			"Void",
-			createVars.filter.fn(positions.is).map(function(v) return
-				"if (data." + v.haxeName + " == null)\n"
+			createVars.filter(positions.is).map.fn
+			(
+				"if (data." + _.haxeName + " == null)\n"
 				+ "{\n"
-				+ "\tdata." + v.haxeName + " = db.query('SELECT MAX(`" + v.name + "`) FROM `" + table + "`" 
+				+ "\tdata." + _.haxeName + " = db.query('SELECT MAX(`" + _.name + "`) FROM `" + table + "`" 
 					+ getWhereSql(getForeignKeyVars(db, table, vars))
 					+ ").getIntResult(0) + 1;\n"
 				+ "}\n\n"
 			).join("")
 			+"var fields = [];\n"
 			+"var values = [];\n"
-			+createVars.map(function(v)
-			 {
-				return v.isKey
-					? "fields.push('`" + v.name + "`'); values.push(db.quote(data." + v.haxeName + "));\n"
-					: "if (Reflect.hasField(data, '" + v.haxeName + "')) { fields.push('`" + v.name + "`'); values.push(db.quote(data." + v.haxeName + ")); }\n";
-			 }).join("")
+			+createVars.map.fn
+			(
+				_.isKey
+					? "fields.push('`" + _.name + "`'); values.push(db.quote(data." + _.haxeName + "));\n"
+					: "if (Reflect.hasField(data, '" + _.haxeName + "')) { fields.push('`" + _.name + "`'); values.push(db.quote(data." + _.haxeName + ")); }\n"
+			).join("")
 			+"db.query('INSERT INTO `" + table + "`(' + fields.join(\", \") + ') VALUES (' + values.join(\", \") + ')');\n"
 		);
 		
-		var deleteVars = vars.filter(function(v:OrmHaxeVar) return v.isKey);
+		var deleteVars = vars.filter.fn(_.isKey);
 		if (deleteVars.length == 0) deleteVars = vars;
 		model.addMethod
 		(
@@ -238,7 +240,7 @@ class OrmManagerGenerator
 		
         for (fields in db.connection.getUniques(table))
 		{
-            var vs = vars.filter(function(v) return fields.has(v.name));
+            var vs = vars.filter.fn(fields.has(_.name));
 			createGetByMethodOne(table, vars, modelClassName, vs, model);
 		}
 		
@@ -265,7 +267,7 @@ class OrmManagerGenerator
         
         model.addMethod
 		(
-			'getBy' + whereVars.map(function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
+			'getBy' + whereVars.map.fn(_.haxeName.capitalize()).join('And'),
 			whereVars, 
 			modelClassName,
 			"return getBySqlOne('SELECT * FROM `" + table + "`" + getWhereSql(whereVars) + ");"
@@ -278,7 +280,7 @@ class OrmManagerGenerator
 
 		model.addMethod
 		(
-			'getBy' + whereVars.map(function(v) return OrmTools.capitalize(v.haxeName)).join('And'),
+			'getBy' + whereVars.map(function(v) return v.haxeName.capitalize()).join('And'),
 			(cast whereVars:Array<HaxeVar>).concat([ OrmTools.createVar('_order', 'String', getOrderDefVal(vars, positions)) ]), 
 			'Array<' + modelClassName + '>',
 			"return getBySqlMany('SELECT * FROM `" + table + "`" + getWhereSql(whereVars) + " + (_order != null ? ' ORDER BY ' + _order : ''));"

@@ -1,12 +1,13 @@
 package orm;
 
 import Type;
-import sys.db.Connection;
-import sys.db.Sqlite;
-import sys.db.ResultSet;
-import stdlib.Std;
-import stdlib.Exception;
 import orm.DbDriver;
+import stdlib.Exception;
+import stdlib.Std;
+import sys.db.Connection;
+import sys.db.ResultSet;
+import sys.db.Sqlite;
+using Lambda;
 using StringTools;
 
 class DbDriver_sqlite implements DbDriver
@@ -21,7 +22,7 @@ class DbDriver_sqlite implements DbDriver
     public function query(sql:String) : ResultSet
     {
 		var r = null;
-		try { r = connection.request(sql); }
+		try r = connection.request(sql)
 		catch (e:Dynamic)
 		{
 			throw new DbException(1, Std.string(e));
@@ -31,7 +32,7 @@ class DbDriver_sqlite implements DbDriver
 	
 	public function close() : Void
 	{
-		try { connection.close(); } catch (_:Dynamic) {}
+		try connection.close() catch (_:Dynamic) {}
 		connection = null;
 	}
 	
@@ -43,35 +44,33 @@ class DbDriver_sqlite implements DbDriver
 	
 	public function isAutoincrement(table:String, field:String) : Bool
 	{
-        var sql       = query("SELECT sql FROM sqlite_master WHERE type='table' AND name='" + table + "'").getResult(0);
+        var sql = query("SELECT sql FROM sqlite_master WHERE type='table' AND name='" + table + "'").getResult(0);
 		
-		var inner 	  = ~/\((.|\r|\n)*\)*/m;
-		inner.match(sql);
-		var statement = inner.matched(0).ltrim().rtrim();	
+		var inner = ~/[(]((?:.|\r|\n)*)[)]/m;
+		if (!inner.match(sql)) return throw 'Unhandled syntax of "sqlite_master" for table "$table".';
 		
-			statement = statement.substr(1, statement.length - 2);
-		
-		var fields    = statement.split(",");
+		var statement = inner.matched(1).trim();
+		var fields = statement.split(",");
 		
 		var delim = '\\[\\]"\'`';
-		var named     = fields.filter(
-			function (fld){
-				fld = fld.ltrim().rtrim().split(" ")[0];//first word in case of field declaration 
-				var reg 		= '[$delim]?$field[$delim]?';//maybe delimited
-				var fld_reg 	= new EReg(reg, "gm");//multiline
-				var matching 	= fld_reg.match(fld);
-				var without_delim_word 	= fld.length == field.length; // both words need to be same length
-				var with_delim_word 	= fld.length == (field.length + 2); // in one of two ways
-				return matching && (without_delim_word 	|| with_delim_word);
-			}
-		);
+		var named = fields.filter(function(fld)
+		{
+			fld = fld.trim().split(" ")[0];//first word in case of field declaration 
+			var reg 		= '[$delim]?$field[$delim]?';//maybe delimited
+			var fld_reg 	= new EReg(reg, "gm");//multiline
+			var matching 	= fld_reg.match(fld);
+			var without_delim_word 	= fld.length == field.length; // both words need to be same length
+			var with_delim_word 	= fld.length == (field.length + 2); // in one of two ways
+			return matching && (without_delim_word 	|| with_delim_word);
+		});
 		
-		if (named.length != 1){//in case of parser bugs
-			trace('field "$field" table "$table" named "$named" fields $fields');
+		if (named.length != 1)
+		{
+			//trace('field "$field" table "$table" named "$named" fields $fields');
 			throw 'Unhandled syntax of "sqlite_master" for table "$table".';
 		}		
 		
-		var isAuto = named[0].split(" ").map(function(x){ return x.ltrim().rtrim();}).indexOf("AUTOINCREMENT") > -1;
+		var isAuto = named[0].split(" ").map(StringTools.trim).indexOf("AUTOINCREMENT") > -1;
 		
 		//trace('field $field isAuto $isAuto');
 		return isAuto;
@@ -80,17 +79,18 @@ class DbDriver_sqlite implements DbDriver
 	public function getFields(table:String) : Array<DbTableFieldData>
     {
         var rows = query("PRAGMA table_info(" + table + ")");
-        return Lambda.array(Lambda.map(rows.results(), function(row)
-			return {
+        return rows.results().map(function(row)
+			return
+			{
                  name : row.name
                 ,type : row.type
                 ,isNull : row.notnull == 0
                 ,isKey : Std.bool(row.pk)
                 ,isAutoInc : isAutoincrement(table, row.name)
 			}
-		));
+		).array();
     }
-
+	
     public function quote(v:Dynamic) : String
     {
 		switch (Type.typeof(v))
@@ -123,7 +123,7 @@ class DbDriver_sqlite implements DbDriver
         
         throw new Exception("Unsupported parameter type '" + Type.getClassName(Type.getClass(v)) + "'.");
     }
-
+	
     public function lastInsertId() : Int
     {
 		return connection.lastInsertId();

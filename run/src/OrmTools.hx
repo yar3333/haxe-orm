@@ -5,16 +5,6 @@ using stdlib.Lambda;
 
 class OrmTools 
 {
-	public static function capitalize(s:String) : String
-	{
-		return s.length == 0 ? s : s.charAt(0).toUpperCase() + s.substr(1);
-	}
-	
-	public static function decapitalize(s:String) : String
-	{
-		return s.length == 0 ? s : s.charAt(0).toLowerCase() + s.substr(1);
-	}
-	
 	static function sqlTypeCheck(checked:String, type:String) : Bool
 	{
 		var re = new EReg("^" + type + "(\\(|$)", "");
