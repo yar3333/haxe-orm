@@ -43,15 +43,38 @@ class DbDriver_sqlite implements DbDriver
 	
 	public function isAutoincrement(table:String, field:String) : Bool
 	{
-        var sql = query("SELECT sql FROM sqlite_master WHERE type='table' AND name='" + table + "'").getResult(0);
-		for (s in sql.replace("\r", "").split("\n"))
-		{
-			if (s.startsWith("\"" + field + "\"") || s.startsWith(field))
-			{
-				return s.substr(field.length + 3).indexOf("AUTOINCREMENT") >= 0;
+        var sql       = query("SELECT sql FROM sqlite_master WHERE type='table' AND name='" + table + "'").getResult(0);
+		
+		var inner 	  = ~/\((.|\r|\n)*\)*/m;
+		inner.match(sql);
+		var statement = inner.matched(0).ltrim().rtrim();	
+		
+			statement = statement.substr(1, statement.length - 2);
+		
+		var fields    = statement.split(",");
+		
+		var delim = '\\[\\]"\'`';
+		var named     = fields.filter(
+			function (fld){
+				fld = fld.ltrim().rtrim().split(" ")[0];//first word in case of field declaration 
+				var reg 		= '[$delim]?$field[$delim]?';//maybe delimited
+				var fld_reg 	= new EReg(reg, "gm");//multiline
+				var matching 	= fld_reg.match(fld);
+				var without_delim_word 	= fld.length == field.length; // both words need to be same length
+				var with_delim_word 	= fld.length == (field.length + 2); // in one of two ways
+				return matching && (without_delim_word 	|| with_delim_word);
 			}
-		}
-		return false;
+		);
+		
+		if (named.length != 1){//in case of parser bugs
+			trace('field "$field" table "$table" named "$named" fields $fields');
+			throw 'Unhandled syntax of "sqlite_master" for table "$table".';
+		}		
+		
+		var isAuto = named[0].split(" ").map(function(x){ return x.ltrim().rtrim();}).indexOf("AUTOINCREMENT") > -1;
+		
+		//trace('field $field isAuto $isAuto');
+		return isAuto;
 	}
 	
 	public function getFields(table:String) : Array<DbTableFieldData>
