@@ -112,7 +112,9 @@ class OrmManagerGenerator
 			);
 		}
 		
+		
 		var createVars = vars.filter(function(v) return !v.isAutoInc);
+		
 		model.addMethod
 		(
 			'create',
