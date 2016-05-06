@@ -112,7 +112,7 @@ user.save(); // update database
 
 var activeUsers = orm.users
                      .where("status", "=", "active")
-                     .findOne();
+                     .findMany();
 
 var activeGoogleUser = orm.users
                           .where("email", "=", "support@google.com")
