@@ -69,7 +69,7 @@ class SqlQuery<T>
 		{
 			sets.push("`" + name + "` = " + quoteValue(fields.get(name)));
 		}
-		db.query("UPDATE `" + table + "`\nSET\n\t" + sets.join("\n\t") + getWhereSql() + getLimitSql(limit));
+		db.query("UPDATE `" + table + "`\nSET\n\t" + sets.join("\n\t") + getWhereSql() + getLimitSql(limit) + getOffsetSql(offset));
 	}
 	
 	public function delete(?limit:Int, ?offset:Int) : Void
