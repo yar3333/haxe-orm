@@ -40,9 +40,9 @@ class SqlQuery<T>
 		return this;
 	}
 	
-	public function findMany(?limit:Int,?offset) : Array<T>
+	public function findMany(?limit:Int,?offset:Int) : Array<T>
 	{
-		return manager.getBySqlMany(getSelectSql(null) + getLimitSql(limit));
+		return manager.getBySqlMany(getSelectSql(null) + getLimitSql(limit) + getOffsetSql(offset));
 	}
 	
 	public function findOne() : T
