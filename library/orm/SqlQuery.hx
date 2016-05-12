@@ -40,7 +40,7 @@ class SqlQuery<T>
 		return this;
 	}
 	
-	public function findMany(?limit:Int) : Array<T>
+	public function findMany(?limit:Int,?offset) : Array<T>
 	{
 		return manager.getBySqlMany(getSelectSql(null) + getLimitSql(limit));
 	}
@@ -50,9 +50,9 @@ class SqlQuery<T>
 		return manager.getBySqlOne(getSelectSql(null));
 	}
 	
-	public function findManyFields<TT:{}>(fields:TT, ?limit:Int) : TypedResultSet<TT>
+	public function findManyFields<TT:{}>(fields:TT, ?limit:Int, ?offset:Int) : TypedResultSet<TT>
 	{
-		return cast db.query(getSelectSql(fields) + getLimitSql(limit));
+		return cast db.query(getSelectSql(fields) + getLimitSql(limit) + getOffsetSql(offset));
 	}
 	
 	public function findOneFields<TT:{}>(fields:TT) : TT
@@ -62,7 +62,7 @@ class SqlQuery<T>
 		return null;
 	}
 	
-	public function update(fields:Map<String, Dynamic>, ?limit:Int) : Void
+	public function update(fields:Map<String, Dynamic>, ?limit:Int, ?offset:Int) : Void
 	{
 		var sets = [];
 		for (name in fields.keys())
@@ -72,9 +72,9 @@ class SqlQuery<T>
 		db.query("UPDATE `" + table + "`\nSET\n\t" + sets.join("\n\t") + getWhereSql() + getLimitSql(limit));
 	}
 	
-	public function delete(?limit:Int) : Void
+	public function delete(?limit:Int, ?offset:Int) : Void
 	{
-		db.query("DELETE FROM `" + table + "`" + getWhereSql() + getLimitSql(limit));
+		db.query("DELETE FROM `" + table + "`" + getWhereSql() + getLimitSql(limit) + getOffsetSql(offset));
 	}
 	
 	public function count() : Int
@@ -119,7 +119,10 @@ class SqlQuery<T>
 	{
 		return limit != null ? "\nLIMIT " + limit : "";
 	}
-	
+	function getOffsetSql(offset:Int) : String
+	{
+		return offset != null ? "\nOFFSET " + offset : "";
+	}
 	function quoteValue(v:Dynamic) : String
 	{
 		if (Std.is(v, SqlValues))
