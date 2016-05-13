@@ -1,10 +1,10 @@
 {
   "name": "orm",
   "license": "LGPL",
-  "tags": ["database","models"],
-  "description": "Object-relational mapping library. Can generate classes from database tables. MySQL and SqlLite are supported for now.",
+  "tags": ["database","models","mysql","sqlite"],
+  "description": "Object-relational mapping library. Can generate haxe classes from MySQL/SQLite database.",
   "contributors": ["yar3333"],
-  "releasenote": "By Laurence Taylor: improve SqLite driver and adding optional `offset` argument into SqlQuery's methods.",
+  "releasenote": "By Laurence Taylor: improve SQLite driver and adding optional `offset` argument into SqlQuery's methods.",
   "version": "2.1.0",
   "url": "https://bitbucket.org/yar3333/haxe-orm",
   "dependencies": {"stdlib":""}
