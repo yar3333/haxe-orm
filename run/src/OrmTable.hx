@@ -36,7 +36,7 @@ class OrmTable
 			var pack = packs.shift();
 			var words = pack.split("_");
 			s += words.shift();
-			s += words.map.fn(_.capitalize()).join("");
+			s += words.map((x) -> x.capitalize()).join("");
 			s += "_";
 		}
 		
@@ -55,11 +55,11 @@ class OrmTable
 			var pack = packs.shift();
 			var words = pack.split("_");
 			s += words.shift();
-			s += words.map.fn(_.capitalize()).join("");
+			s += words.map((x) -> x.capitalize()).join("");
 			s += ".";
 		}
 		
-		s += packs[0].split("_").map.fn(_.capitalize()).join("");
+		s += packs[0].split("_").map((x) -> x.capitalize()).join("");
 		
 		return s;
     }

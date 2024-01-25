@@ -1,0 +1,6 @@
+--neko ..\library\run.n
+--class-path ..\library
+--class-path src
+--library stdlib
+--library hant
+--main Main

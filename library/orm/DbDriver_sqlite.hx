@@ -96,12 +96,12 @@ class DbDriver_sqlite implements DbDriver
 		switch (Type.typeof(v))
         {
             case ValueType.TClass(cls):
-                if (Std.is(v, String))
+                if (Std.isOfType(v, String))
                 {
 					return connection.quote(v);
                 }
                 else
-                if (Std.is(v, Date))
+                if (Std.isOfType(v, Date))
                 {
                     return "'" + v.toString() + "'";
                 }

@@ -1,0 +1,3 @@
+--neko bin\index.n
+--class-path library
+--library stdlib

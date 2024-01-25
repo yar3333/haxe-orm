@@ -63,6 +63,6 @@ class OrmTools
 	
 	public static function fields2vars(table:String, fields:Iterable<DbTableFieldData>, positions:OrmPositions) : Array<OrmHaxeVar>
 	{
-		return fields.map.fn(OrmTools.field2var(table, _, positions)).array();
+		return fields.map((x) -> OrmTools.field2var(table, x, positions)).array();
 	}
 }
