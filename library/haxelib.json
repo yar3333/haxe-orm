@@ -4,8 +4,8 @@
   "tags": ["database","models","mysql","sqlite"],
   "description": "Object-relational mapping library. Can generate haxe classes from MySQL/SQLite database.",
   "contributors": ["yar3333"],
-  "releasenote": "By Laurence Taylor: improve SQLite driver and adding optional `offset` argument into SqlQuery's methods.",
-  "version": "2.1.0",
+  "releasenote": "haxe-4",
+  "version": "2.1.1",
   "url": "https://github.com/yar3333/haxe-orm",
   "dependencies": {"stdlib":""}
 }
